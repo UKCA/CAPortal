@@ -63,17 +63,17 @@
                             <tr>
                                 <td>Email</td> 
                                 <td><a href="mailto:${certificateRow.email}" id="currEmail">${certificateRow.email}</a>
-                                    <c:if test="${fn:contains(certificateRow.cn, '.')}">
-                                        <form:form method="post" action="${pageContext.request.contextPath}/cert_owner/changemail"> 
-                                            <div id="inputEmail">
-                                                <input name="email" id="emailInputText" value="${certificateRow.email}"/><span></span>
-                                            </div>
-                                                <button type="button" id="changeEmail" class="btn btn-primary btn-xs">Change host email</button>
-                                                <button type="submit" id="saveEmail" class="btn btn-primary btn-xs" 
-                                                    onclick="return confirm('Are you sure you want to change the host email address?')">Save</button>
-                                                <a onclick="location.reload(true)">Cancel</a>
-                                        </form:form>
-                                    </c:if>
+                                    <form:form method="post" action="${pageContext.request.contextPath}/cert_owner/changemail"> 
+                                        <div id="inputEmail">
+                                            <input name="email" id="emailInputText" value="${certificateRow.email}"/><span></span>
+                                        </div>
+                                        <c:if test="${fn:contains(certificateRow.cn, '.')}">
+                                            <button type="button" id="changeEmail" class="btn btn-primary btn-xs">Change host email</button>
+                                            <button type="submit" id="saveEmail" class="btn btn-primary btn-xs" 
+                                                onclick="return confirm('Are you sure you want to change the host email address?')">Save</button>
+                                            <a onclick="location.reload(true)">Cancel</a>
+                                        </c:if>
+                                    </form:form>
                                 </td>
                             </tr>
                             <tr>

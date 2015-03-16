@@ -53,11 +53,22 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Name</th>
+                                    <th>RA ID</th>
+                                    <th>Location</th>
+                                    <th>Contact</th>
+                                    <sec:authorize access="hasRole('ROLE_RAOP')">
+                                    <th>RA Op</th>
+                                    <th>RA Man</th>
                                     <th>(OU) OrgUnit</th>
                                     <th>(L) Location</th>
-                                    <sec:authorize access="hasRole('ROLE_RAOP')">
+                                    <th>(CN) CN</th>
                                         <th>Email</th> 
+                                    <th>Phone</th>
+                                    <%---<th>Street</th>
+                                    <th>City</th>
+                                    <th>Post Code</th>
+                                    <th>Training Date</th>---%>
+                                    <th>Active</th>
                                     </sec:authorize>
                                     <%--<sec:authorize access="hasRole('ROLE_CAOP')">
                                         <th>Promote</th>
@@ -70,13 +81,47 @@
                                 <c:forEach var="contact" items="${contacts}" varStatus="loopVar">
                                     <c:set var="count" value="${count + 1}" scope="page"/>
                                     <tr>
-                                        <td>${count}</td>   
-                                        <td>${contact.certRow.cn}</td>
+                                        <c:forEach var="raop" items="${contact.raoplistRows}">
+                                        <td>${count}</td>
+                                        <td>${raop.ra_id}</td>
+                                        <td>${raop.location}</td>
+                                        <sec:authorize access="hasRole('ROLE_RAOP')">
+                                        <td>${raop.title} ${raop.name}</td>
+                                        <c:choose>
+                                            <c:when test="${raop.operator}">
+                                                <td><span class="glyphicon glyphicon-star"/></td>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <td></td>
+                                            </c:otherwise>
+                                        </c:choose>
+                                        <c:choose>
+                                            <c:when test="${raop.manager}">
+                                                <td><span class="glyphicon glyphicon-star"/></td>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <td></td>
+                                            </c:otherwise>
+                                        </c:choose>
                                         <td>${contact.ou}</td>
                                         <td>${contact.loc}</td>
-                                        <sec:authorize access="hasRole('ROLE_RAOP')">
+                                        <td>${contact.certRow.cn}</td>
                                             <td><a href="mailto:${contact.certRow.email}">${contact.certRow.email}</a></td>
+                                        <td>${raop.phone}</td>
+                                        <%--<td>${contact.street}</td>
+                                        <td>${contact.city}</td>
+                                        <td>${contact.postcode}</td>
+                                        <td>${contact.trainingdate}</td>--%>
+                                        <c:choose>
+                                            <c:when test="${raop.active}">
+                                                <td><span class="glyphicon glyphicon-star"/></td>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <td></td>
+                                            </c:otherwise>
+                                        </c:choose>
                                         </sec:authorize>
+                                        </c:forEach>
                                         <%--<sec:authorize access="hasRole('ROLE_CAOP')">
                                             <td>Promote Here</td>
                                             <td>Demote Here</td> 

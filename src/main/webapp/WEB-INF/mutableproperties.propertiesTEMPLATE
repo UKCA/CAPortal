@@ -60,4 +60,4 @@ senior.caops=
 
 # Does the CA DB support renewals of bulk certificates (i.e. bulk_chain table and seq_bulk sequence are deployed) 
 # This property is only used when a bulk certificate is renewed via the portal. true or false 
-support.bulk.on.renew=false
+support.bulk.on.renew=true
