@@ -1,15 +1,3 @@
-/*
- * Copyright (C) 2015 STFC
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package uk.ac.ngs.dao;
 
 import java.sql.ResultSet;
@@ -31,6 +19,7 @@ import uk.ac.ngs.domain.RalistRow;
  * <code>ralist</code> table.
  *
  * @author David Meredith
+ * @author Josh Hadley
  */
 @Repository
 public class JdbcRalistDao {
@@ -41,6 +30,7 @@ public class JdbcRalistDao {
     private static final String OFFSET_ROWS = "OFFSET :offset ";
     private static final String ORDER_BY = "order by order_id "; 
     public static final String SQL_SELECT_ALL = "select ra_id, order_id, ou, l, active from ralist ";
+    private static final String SQL_INSERT ="insert into ralist (order_id, ou, l) values (:order_id, :ou, :l);";
 
     /**
      * Set the JDBC dataSource.
@@ -116,5 +106,45 @@ public class JdbcRalistDao {
             namedParameters.put("offset", offset);
         }
         return this.jdbcTemplate.query(query, namedParameters, new JdbcRalistDao.RalistRowMapper());
+    }
+    
+    /**
+     * Returns all the rows in the <code>ralist</code> where the location
+     * matches the given location.
+     * 
+     * @param L location to search by
+     * @return
+     */
+    public List<RalistRow> findAllByLocation(String L){
+        Map<String, Object> namedParameters = new HashMap<String,Object>();
+        
+        String query = SQL_SELECT_ALL;
+        
+        query += "where l = :L";
+        
+        query += ORDER_BY;
+        
+        return this.jdbcTemplate.query(query, namedParameters, new JdbcRalistDao.RalistRowMapper());
+    }
+    
+    /**
+     * Insert new RA record into <code>Ralist</code> table with the given
+     * parameters
+     * 
+     * @param order_id sorting order for the RA records
+     * @param L location of RA
+     * @param ou organisation unit of RA
+     * @return 
+     */
+    public int insertIntoDB(int order_id, String L, String ou){
+        Map<String, Object> namedParameters = new HashMap<String,Object>();
+        
+        namedParameters.put("order_id", order_id);
+        namedParameters.put("l", L);
+        namedParameters.put("ou", ou);
+        
+        String query = SQL_INSERT;
+       
+        return this.jdbcTemplate.update(query, namedParameters);
     }
 }

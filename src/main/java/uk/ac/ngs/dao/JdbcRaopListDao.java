@@ -1,14 +1,5 @@
-/*
- * Copyright (C) 2015 STFC
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/**
+ * 
  */
 package uk.ac.ngs.dao;
 
@@ -25,6 +16,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import uk.ac.ngs.common.Pair;
 import uk.ac.ngs.domain.RaopListRow;
 
 /**
@@ -39,10 +31,12 @@ public class JdbcRaopListDao {
     //private final static DateFormat utcTimeStampFormatter = new SimpleDateFormat("yyyyMMddHHmmss"); 
     private static final Log log = LogFactory.getLog(JdbcRaopListDao.class);
 
+    public static final String SELECT_COUNT = "select count(*) from raoplist ";
     public final String SELECT_PROJECT = "select ou, l, name, email, phone, "
                 + "street, city, postcode, cn, manager, operator, trainingdate, "
                 + "title, conemail, location, ra_id, department_hp, "
                 + "institute_hp, active, ra_id2 from raoplist"; 
+    public final String SELECT_ALL ="select * from raoplist";
     
     /**
      * Set the JDBC dataSource. 
@@ -53,6 +47,21 @@ public class JdbcRaopListDao {
         this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
     
+    /**
+     * Keys for defining 'where' parameters and values for building queries.  
+     * <p>
+     * If the key ends with '_LIKE' then the where clause is appended with a SQL
+     * 'like' clause (e.g. <code>key like 'value'</code>). 
+     * If the key ends with '_EQ' then the where clause is appended  with a SQL 
+     * '=' clause (e.g. <code>key = 'value'</code>).
+     * <p>
+     * _EQ takes precedence over _LIKE so if both EMAIL_EQ and EMAIL_LIKE are given, then 
+     * only EMAIL_EQ is used to create the query. 
+     */
+    public static enum WHERE_PARAMS {
+
+        CN_LIKE, EMAIL_LIKE, EMAIL_EQ, DN_HAS_RA_LIKE
+    };
     
     private final static class RaopRowMapper implements RowMapper<RaopListRow> {
 
@@ -84,6 +93,11 @@ public class JdbcRaopListDao {
         
     }
     
+    public List<RaopListRow> findAll(){
+        return this.jdbcTemplate.query(SELECT_PROJECT, 
+                new RaopRowMapper());   
+    }
+    
     /**
      * Search the <pre>raoplist</pre> table by the specified search parameters. 
      * All parameters are nullable. 
@@ -105,7 +119,7 @@ public class JdbcRaopListDao {
             namedParameters.put("l", l); 
         }
         if(cn != null){
-            whereBuilder.append("and cn = :cn "); 
+            whereBuilder.append("and cn like :cn "); 
             namedParameters.put("cn", cn); 
         }
         if(active != null){
@@ -137,9 +151,99 @@ public class JdbcRaopListDao {
             return null;
         } 
     }
+    
+    /**
+     * Search for RA-OPs using the search criteria specified in the given 
+     * where-by parameter map. 
+     * Multiple whereByParams are appended together using 'and' statements. 
+     * 
+     * @param whereByParams Search-by parameters used in where clause of SQL query. 
+     * @param limit Limit the returned row count to this many rows or null not to specify a limit.   
+     * @param offset Return rows from this row number or null not to specify an offset.  
+     * @return 
+     */
+    public List<RaopListRow> findBy(Map<WHERE_PARAMS, String> whereByParams, Integer limit, Integer offset) {
+        Pair<String, Map<String, Object>> p = this.buildQuery(SELECT_ALL, whereByParams, limit, offset, true);
+        return this.jdbcTemplate.query(p.first, p.second, new RaopRowMapper());
+    }
+    /**
+     * Count the total number of rows that are selected by the given where-by search criteria. 
+     * @see #findBy(java.util.Map, java.lang.Integer, java.lang.Integer)  
+     * @param whereByParams
+     * @return number of matching rows.  
+     */
+    public int countBy(Map<WHERE_PARAMS, String> whereByParams) {
+        Pair<String, Map<String, Object>> p = this.buildQuery(SELECT_COUNT, whereByParams, null, null, false);
+        return this.jdbcTemplate.queryForInt(p.first, p.second);
+    }
 
-    
-    
+    /**
+     * Build up the query using the given where by parameters in the map
+     * and return the query and the named parameter map for subsequent parameter-binding/execution.  
+     * @param selectStatement
+     * @param whereByParams
+     * @param limit
+     * @param offset
+     * @param orderby
+     * @return 
+     */
+    protected Pair<String, Map<String, Object>> buildQuery(String selectStatement,
+            Map<WHERE_PARAMS, String> whereByParams, Integer limit, Integer offset, boolean orderby) {
+
+        String whereClause = "";
+        Map<String, Object> namedParameters = new HashMap<String, Object>();
+        if (whereByParams != null && !whereByParams.isEmpty()) {
+            StringBuilder whereBuilder = new StringBuilder("where ");
+            
+            if (whereByParams.containsKey(WHERE_PARAMS.CN_LIKE)) {
+                whereBuilder.append("cn like :cn and ");
+                namedParameters.put("cn", whereByParams.get(WHERE_PARAMS.CN_LIKE));
+            }
+            // EQ takes precidence over LIKE 
+            if (whereByParams.containsKey(WHERE_PARAMS.EMAIL_EQ)) {
+                log.debug("Searching for null email - check val ["+whereByParams.get(WHERE_PARAMS.EMAIL_EQ)+"]"); 
+                if(whereByParams.get(WHERE_PARAMS.EMAIL_EQ) == null){
+                    whereBuilder.append("email is null and ");
+                } else {
+                    whereBuilder.append("email = :email and ");
+                    namedParameters.put("email", whereByParams.get(WHERE_PARAMS.EMAIL_EQ));
+                }
+            } else {
+                if (whereByParams.containsKey(WHERE_PARAMS.EMAIL_LIKE)) {
+                    whereBuilder.append("email like :email and ");
+                    namedParameters.put("email", whereByParams.get(WHERE_PARAMS.EMAIL_LIKE));
+                }
+            }
+            if(whereByParams.containsKey(WHERE_PARAMS.DN_HAS_RA_LIKE)){
+                String[] location = whereByParams.get(WHERE_PARAMS.DN_HAS_RA_LIKE).split(",");
+                String l = location[0].replace("L=", "").trim();
+                String ou = location[1].replace("OU=", "").trim();
+                log.info(ou);
+                log.info(l);
+                whereBuilder.append("ou like :ou and l like :l and"); 
+                namedParameters.put("ou", ou);
+                namedParameters.put("l", l);
+            }
+            // Always trim leading/trailing whitespace and remove trailling and (if any) 
+            whereClause = whereBuilder.toString().trim();
+            if (whereClause.endsWith("and")) {
+                whereClause = whereClause.substring(0, whereClause.length() - 3);
+            }
+            whereClause = whereClause.trim();
+        }
+        // Build up the sql statement. 
+        String sql = selectStatement + ' ' + whereClause;        
+        if (limit != null) {
+            sql = sql + " LIMIT :limit";
+            namedParameters.put("limit", limit);
+        }
+        if (offset != null) {
+            sql = sql + " OFFSET :offset";
+            namedParameters.put("offset", offset);
+        }
+        log.debug(sql);
+        return Pair.create(sql.trim(), namedParameters);
+    }
     
 
 }
