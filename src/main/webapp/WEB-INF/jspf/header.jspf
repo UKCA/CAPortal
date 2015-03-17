@@ -44,12 +44,12 @@
                             <ul class="dropdown-menu">
                                 <li><a href="${raOpUrl}">RAOP Home</a></li>
                                 <%--<li class="nav-header">Certificates</li>--%>
-                                <li><a href="${pageContext.request.contextPath}/raop/viewyourra">Your RA Details</a></li>
                                 <li><a href="${pageContext.request.contextPath}/raop/searchcsr">Search <b>New/Renew</b> Signing Requests</a></li>
                                 <li><a href="${pageContext.request.contextPath}/raop/searchcrr">Search <b>Revocation</b> Requests</a></li>
                                 <%--<li class="divider"></li>--%>
                                 <c:url value="/raop/searchcert" var="raOpSearchCert" />
                                 <li><a href="${raOpSearchCert}">Search <b>Certificates</b></a></li>
+                                                               <li><a href="${pageContext.request.contextPath}/raop/viewyourra">Your RA Details</a></li>
                                 <%--<li><a href="${pageContext.request.contextPath}/raop/searchralist">Search RAs</a></li>--%>
                             </ul>
                         </li>  
@@ -61,7 +61,7 @@
                                 <li><a href="${caOpUrl}">CAOP Home</a></li>
                                 <li><a href="${pageContext.request.contextPath}/caop/exportcert"><b>Export</b> Approved Certificates</a></li>
                                 <li><a href="${pageContext.request.contextPath}/caop/importcert"><b>Import</b> Signed Certificates</a></li>
-                                <li><a href="${pageContext.request.contextPath}/caop/raoplist"><b>RA-OP List</a></li>
+                                <li><a href="${pageContext.request.contextPath}/caop/raoplist">RA-OP List</a></li>
                                 <!--<li><a href="${pageContext.request.contextPath}/caop/exportcert"><b>Export</b> Approved Certificates</a></li> --->
                             </ul>
                         </li>

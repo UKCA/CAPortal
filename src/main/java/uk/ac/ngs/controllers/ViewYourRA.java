@@ -104,8 +104,12 @@ public class ViewYourRA {
         String l = CertUtil.extractDnAttribute(curCert.getDn(), CertUtil.DNAttributeType.L); 
         
         //Grab User's RA details
+        RaopListRow raop = new RaopListRow();
         List<RaopListRow> raRow = this.jdbcRaopListDao.findBy(ou, l, curCert.getCn(), Boolean.TRUE);
-        RaopListRow raop = raRow.get(0);
+        
+        if(!raRow.isEmpty()) {
+            raop = raRow.get(0);
+        }
         
         log.info("Current RA-OP: " + raop);
         
@@ -133,7 +137,14 @@ public class ViewYourRA {
                    contacts.add(contact);  
                 }
             }
-            model.put("contacts", contacts); 
+            
+            if (contacts.isEmpty())
+            {
+                model.put("contacts", "Empty"); 
+            }
+            else{
+                model.put("contacts", contacts); 
+            }
         }
     }
 

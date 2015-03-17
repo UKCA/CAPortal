@@ -89,14 +89,14 @@
                                     <td>${user.ou}</td>
                                     <td>${user.l}</td>
                                     <td>${user.cn}</td>
-                                    <sec:authorize access="hasRole('ROLE_RAOP')">
-                                        <td><a href="mailto:${user.email}">${user.email}</a></td>
-                                    </sec:authorize>
+                                    <td><a href="mailto:${user.email}">${user.email}</a></td>
                                     <td>${user.phone}</td>
+                                    <c:if test="${contact != 'Empty' }">
                                     <td>${contact.street}</td>
                                     <td>${contact.city}</td>
                                     <td>${contact.postcode}</td>
                                     <td>${contact.trainingDate}</td>
+                                    </c:if>
                                     <c:choose>
                                         <c:when test="${user.active}">
                                             <td><span class="glyphicon glyphicon-star"/></td>

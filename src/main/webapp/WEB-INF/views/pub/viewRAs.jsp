@@ -56,19 +56,27 @@
                                     <th>RA ID</th>
                                     <th>Location</th>
                                     <th>Contact</th>
+
                                     <sec:authorize access="hasRole('ROLE_RAOP')">
                                     <th>RA Op</th>
                                     <th>RA Man</th>
                                     <th>(OU) OrgUnit</th>
                                     <th>(L) Location</th>
                                     <th>(CN) CN</th>
+
                                         <th>Email</th> 
+
+                                    <sec:authorize access="hasRole('ROLE_RAOP')">
+                                        <th>Email</th> 
+                                    </sec:authorize>
+
                                     <th>Phone</th>
                                     <%---<th>Street</th>
                                     <th>City</th>
                                     <th>Post Code</th>
                                     <th>Training Date</th>---%>
                                     <th>Active</th>
+
                                     </sec:authorize>
                                     <%--<sec:authorize access="hasRole('ROLE_CAOP')">
                                         <th>Promote</th>
@@ -85,7 +93,9 @@
                                         <td>${count}</td>
                                         <td>${raop.ra_id}</td>
                                         <td>${raop.location}</td>
+
                                         <sec:authorize access="hasRole('ROLE_RAOP')">
+
                                         <td>${raop.title} ${raop.name}</td>
                                         <c:choose>
                                             <c:when test="${raop.operator}">
@@ -106,7 +116,13 @@
                                         <td>${contact.ou}</td>
                                         <td>${contact.loc}</td>
                                         <td>${contact.certRow.cn}</td>
+
                                             <td><a href="mailto:${contact.certRow.email}">${contact.certRow.email}</a></td>
+
+                                        <sec:authorize access="hasRole('ROLE_RAOP')">
+                                            <td><a href="mailto:${contact.certRow.email}">${contact.certRow.email}</a></td>
+                                        </sec:authorize>
+
                                         <td>${raop.phone}</td>
                                         <%--<td>${contact.street}</td>
                                         <td>${contact.city}</td>
@@ -120,7 +136,9 @@
                                                 <td></td>
                                             </c:otherwise>
                                         </c:choose>
+
                                         </sec:authorize>
+
                                         </c:forEach>
                                         <%--<sec:authorize access="hasRole('ROLE_CAOP')">
                                             <td>Promote Here</td>

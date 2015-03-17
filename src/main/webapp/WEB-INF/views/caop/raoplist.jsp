@@ -53,7 +53,7 @@
                                         <li>Or by clicking the 'Add new RA Contact' button</li>
                                     </ul>
                                 </li>
-                                <li><strong>Adding a new RA</strong> by clicking the 'Add new RA' button</li>
+                                <li><strong> Adding a new RA </strong> by clicking the 'Add new RA' button</li>
                            </ol>
                         </div>
                         <div class="modal-footer">
@@ -153,13 +153,14 @@
                        <div class="col-xs-11">
                             <c:forEach var="raop" items="${sessionScope.raopSearchPageHolder.source}"> 
                                 <c:if test="${raop.raoplistSize == 0}">
-                                    <a href="${pageContext.request.contextPath}/caop/addracontacts?certId=${raop.certRow.cert_key}">${raop.certRow.cert_key}</a>
+                                    <!--<a href="${pageContext.request.contextPath}/caop/addracontacts?certId=${raop.certRow.cert_key}">${raop.certRow.cert_key}</a>-->
+                                    ${raop.certRow.cert_key}
                                 </c:if>
                             </c:forEach>
                         </div>
                         <br/>
                         <br/>
-                        <!--<div class="col-xs-9">    
+                        <div class="col-xs-9">    
                             <div class="form-group">
                                 <form:form method="post"
                                     action="${pageContext.request.contextPath}/caop/addracontacts">
@@ -182,7 +183,7 @@
                                     </div>
                                 </form:form>
                             </div>
-                        </div>-->
+                        </div>
                     </div>       
 
                    <div class="col-xs-1">
@@ -205,7 +206,7 @@
                            <!--  <caption>List of RA-OP rows returned by search</caption> -->
                            <thead>
                                <tr>
-                                   <!--<th>Actions</th>-->
+                                   <th>Actions</th>
                                    <th class="sorter-false">#</th>
                                    <th>OU</th>
                                    <th>L</th>
@@ -245,7 +246,7 @@
                                    </c:choose>
                                    <tr>
                                        <c:if test="${isEmpty == 'false'}">
-                                            <!--<td>
+                                            <td>
                                                  <form:form method="post" action="${pageContext.request.contextPath}/caop/raoplist/goto"
                                                 commandName="editRaContactBean" >
                                                     <button type="submit" class="btn btn-sm">Edit</button>
@@ -262,7 +263,7 @@
                                                         </c:if>
                                                     </form:form>
                                                 </c:forEach>
-                                            </td>-->
+                                            </td>
                                             <td><a href="${viewraop}">${sessionScope.raopSearchPageHolder.row + count}</a></td>
                                             <td>${raop.ou}</td>
                                             <td>${raop.loc}</td>
