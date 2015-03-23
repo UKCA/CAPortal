@@ -102,6 +102,7 @@ public class ViewYourRA {
         CertificateRow curCert = this.securityContextService.getCaUserDetails().getCertificateRow();
         String ou = CertUtil.extractDnAttribute(curCert.getDn(), CertUtil.DNAttributeType.OU); 
         String l = CertUtil.extractDnAttribute(curCert.getDn(), CertUtil.DNAttributeType.L); 
+        model.put("cert", curCert);
         
         //Grab User's RA details
         RaopListRow raop = new RaopListRow();

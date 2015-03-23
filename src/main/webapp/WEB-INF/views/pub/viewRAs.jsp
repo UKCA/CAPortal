@@ -95,50 +95,41 @@
                                         <td>${raop.location}</td>
 
                                         <sec:authorize access="hasRole('ROLE_RAOP')">
-
-                                        <td>${raop.title} ${raop.name}</td>
-                                        <c:choose>
-                                            <c:when test="${raop.operator}">
-                                                <td><span class="glyphicon glyphicon-star"/></td>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <td></td>
-                                            </c:otherwise>
-                                        </c:choose>
-                                        <c:choose>
-                                            <c:when test="${raop.manager}">
-                                                <td><span class="glyphicon glyphicon-star"/></td>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <td></td>
-                                            </c:otherwise>
-                                        </c:choose>
-                                        <td>${contact.ou}</td>
-                                        <td>${contact.loc}</td>
-                                        <td>${contact.certRow.cn}</td>
-
+                                            <td>${raop.title} ${raop.name}</td>
+                                            <c:choose>
+                                                <c:when test="${raop.operator}">
+                                                    <td><span class="glyphicon glyphicon-star"/></td>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <td></td>
+                                                </c:otherwise>
+                                            </c:choose>
+                                            <c:choose>
+                                                <c:when test="${raop.manager}">
+                                                    <td><span class="glyphicon glyphicon-star"/></td>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <td></td>
+                                                </c:otherwise>
+                                            </c:choose>
+                                            <td>${contact.ou}</td>
+                                            <td>${contact.loc}</td>
+                                            <td>${contact.certRow.cn}</td>
                                             <td><a href="mailto:${contact.certRow.email}">${contact.certRow.email}</a></td>
-
-                                        <sec:authorize access="hasRole('ROLE_RAOP')">
-                                            <td><a href="mailto:${contact.certRow.email}">${contact.certRow.email}</a></td>
+                                            <td>${raop.phone}</td>
+                                            <%--<td>${contact.street}</td>
+                                            <td>${contact.city}</td>
+                                            <td>${contact.postcode}</td>
+                                            <td>${contact.trainingdate}</td>--%>
+                                            <c:choose>
+                                                <c:when test="${raop.active}">
+                                                    <td><span class="glyphicon glyphicon-star"/></td>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <td></td>
+                                                </c:otherwise>
+                                            </c:choose>
                                         </sec:authorize>
-
-                                        <td>${raop.phone}</td>
-                                        <%--<td>${contact.street}</td>
-                                        <td>${contact.city}</td>
-                                        <td>${contact.postcode}</td>
-                                        <td>${contact.trainingdate}</td>--%>
-                                        <c:choose>
-                                            <c:when test="${raop.active}">
-                                                <td><span class="glyphicon glyphicon-star"/></td>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <td></td>
-                                            </c:otherwise>
-                                        </c:choose>
-
-                                        </sec:authorize>
-
                                         </c:forEach>
                                         <%--<sec:authorize access="hasRole('ROLE_CAOP')">
                                             <td>Promote Here</td>
@@ -155,98 +146,6 @@
                 </div> <!-- /container -->
             </div>
         </div> <!-- /span -->
-
-
-        <%--<jsp:include page="../common/footer.jsp" />--%>
-        <%@ include file="../../jspf/footer.jspf" %>
-    </body>
-                                    <th>RA Op</th>
-                                    <th>RA Man</th>
-                                    <th>(OU) OrgUnit</th>
-                                    <th>(L) Location</th>
-                                    <th>(CN) CN</th>
-                                    <sec:authorize access="hasRole('ROLE_RAOP')">
-                                        <th>Email</th> 
-                                    </sec:authorize>
-
-
-                                    <th>Phone</th>
-                                    <%---<th>Street</th>
-                                    <th>City</th>
-                                    <th>Post Code</th>
-                                    <th>Training Date</th>---%>
-                                    <th>Active</th>
-                                    <%--<sec:authorize access="hasRole('ROLE_CAOP')">
-                                        <th>Promote</th>
-                                        <th>Demote</th>
-                                    </sec:authorize>--%>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:set var="count" value="0" scope="page" />
-                                <c:forEach var="contact" items="${contacts}" varStatus="loopVar">
-                                    <c:set var="count" value="${count + 1}" scope="page"/>
-                                    <tr>
-                                        <c:forEach var="raop" items="${contact.raoplistRows}">
-                                        <td>${count}</td>
-                                        <td>${raop.ra_id}</td>
-                                        <td>${raop.location}</td>
-                                        <td>${raop.title} ${raop.name}</td>
-                                        <c:choose>
-                                            <c:when test="${raop.operator}">
-                                                <td><span class="glyphicon glyphicon-star"/></td>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <td></td>
-                                            </c:otherwise>
-                                        </c:choose>
-                                        <c:choose>
-                                            <c:when test="${raop.manager}">
-                                                <td><span class="glyphicon glyphicon-star"/></td>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <td></td>
-                                            </c:otherwise>
-                                        </c:choose>
-                                        <td>${contact.ou}</td>
-                                        <td>${contact.loc}</td>
-                                        <td>${contact.certRow.cn}</td>
-                                        <sec:authorize access="hasRole('ROLE_RAOP')">
-                                            <td><a href="mailto:${contact.certRow.email}">${contact.certRow.email}</a></td>
-                                        </sec:authorize>
-
-
-                                        <td>${raop.phone}</td>
-                                        <%--<td>${contact.street}</td>
-                                        <td>${contact.city}</td>
-                                        <td>${contact.postcode}</td>
-                                        <td>${contact.trainingdate}</td>--%>
-                                        <c:choose>
-                                            <c:when test="${raop.active}">
-                                                <td><span class="glyphicon glyphicon-star"/></td>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <td></td>
-                                            </c:otherwise>
-                                        </c:choose>
-                                        </c:forEach>
-                                        <%--<sec:authorize access="hasRole('ROLE_CAOP')">
-                                            <td>Promote Here</td>
-                                            <td>Demote Here</td> 
-                                        </sec:authorize>--%>
-                                    </tr>
-                                </c:forEach>    
-                            </tbody>
-                        </table>        
-
-
-                    </div>
-
-                </div> <!-- /container -->
-            </div>
-        </div> <!-- /span -->
-
-
         <%--<jsp:include page="../common/footer.jsp" />--%>
         <%@ include file="../../jspf/footer.jspf" %>
     </body>

@@ -38,11 +38,15 @@
                         correct below
                     </p>
                     <br/>
-
+                    
                     <div class="col-xs-11"> <%-- Current RA-OP User --%>
-                        <h3> Your RA-OP Contact Details </h3>
-                        <br/>
-                        
+                        <div class="col-xs-4">
+                            <h3> Your RA-OP Contact Details </h3>
+                            <br/>
+                        </div>
+                        <div class="col-xs-2 col-xs-offset-4">
+                            <a href="${pageContext.request.contextPath}/raop/editracontactdetails?certId=${cert.cert_key}" class="btn btn-info" role="button">Edit Your Details</a>
+                        </div>
                         <!-- Check to see if RA-OP details need to be added to the database --->
                         <c:if test="${user != null}">
                             <table class="table table-hover table-condensed">
@@ -53,9 +57,6 @@
                                     <th>Contact</th>
                                     <th>RA Op</th>
                                     <th>RA Man</th>
-                                    <th>(OU) OrgUnit</th>
-                                    <th>(L) Location</th>
-                                    <th>(CN) CN</th>
                                     <th>Email</th> 
                                     <th>Phone</th>
                                     <th>Street</th>
@@ -86,9 +87,6 @@
                                             <td></td>
                                         </c:otherwise>
                                     </c:choose>
-                                    <td>${user.ou}</td>
-                                    <td>${user.l}</td>
-                                    <td>${user.cn}</td>
                                     <td><a href="mailto:${user.email}">${user.email}</a></td>
                                     <td>${user.phone}</td>
                                     <c:if test="${contact != 'Empty' }">
@@ -133,9 +131,6 @@
                                     <th>Contact</th>
                                     <th>RA Op</th>
                                     <th>RA Man</th>
-                                    <th>(OU) OrgUnit</th>
-                                    <th>(L) Location</th>
-                                    <th>(CN) CN</th>
                                     <sec:authorize access="hasRole('ROLE_RAOP')">
                                         <th>Email</th> 
                                     </sec:authorize>
@@ -173,9 +168,6 @@
                                                 <td></td>
                                             </c:otherwise>
                                         </c:choose>
-                                        <td>${contact.ou}</td>
-                                        <td>${contact.loc}</td>
-                                        <td>${contact.certRow.cn}</td>
                                         <sec:authorize access="hasRole('ROLE_RAOP')">
                                             <td><a href="mailto:${contact.certRow.email}">${contact.certRow.email}</a></td>
                                         </sec:authorize>

@@ -12,7 +12,6 @@
  */
 package uk.ac.ngs.controllers;
 
-import java.util.Date;
 import java.util.List;
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -32,7 +31,6 @@ import uk.ac.ngs.dao.JdbcRaopListDao;
 import uk.ac.ngs.domain.CertificateRow;
 import uk.ac.ngs.domain.RaopListRow;
 import uk.ac.ngs.forms.AddRaOperatorBean;
-import uk.ac.ngs.forms.RevokeCertFormBean;
 import uk.ac.ngs.service.CertUtil;
 
 /**
@@ -41,9 +39,9 @@ import uk.ac.ngs.service.CertUtil;
  * @author Josh Hadley
  */
 @Controller
-@RequestMapping("/caop/addracontacts")
-@SessionAttributes(value = {AddRaContacts.ADD_RA_OPERATOR_FORM_BEAN_SESSIONSCOPE})
-public class AddRaContacts {
+@RequestMapping("/raop/editracontactdetails")
+@SessionAttributes(value = {EditRaContactDetails.ADD_RA_OPERATOR_FORM_BEAN_SESSIONSCOPE})
+public class EditRaContactDetails {
 
     private static final Log log = LogFactory.getLog(ViewCert.class);
     private JdbcCertificateDao certDao;
@@ -53,7 +51,7 @@ public class AddRaContacts {
      /**
      * Name of the model attribute used to bind form POSTs.  
      */
-    public static final String ADD_RA_OPERATOR_FORM_BEAN_SESSIONSCOPE = "addRaOperatorBean";
+    public static final String ADD_RA_OPERATOR_FORM_BEAN_SESSIONSCOPE = "editRaContactDetails";
     
     @ModelAttribute
     public void populateDefaultModel(ModelMap modelMap) {
@@ -63,17 +61,18 @@ public class AddRaContacts {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public void handleAddRaContacts(@RequestParam(required = false) Integer certId, ModelMap modelMap) {
+    public void handleEditRaContactsDetails(@RequestParam(required = true) Integer certId, ModelMap modelMap) {
         
-        //Check if the certId is avaliable, if not then display an empty model
+        //Check if the CN is avaliable
         if (certId == null) {
+            modelMap.put("errorMessage", "No RA-OP with this CN exists. ");
             return;
-        }  
-        
+        }
+
         //Fetch Cert
         CertificateRow cert = this.certDao.findById(certId);
         modelMap.put("cert", cert);
-
+        
         //Collect cn, l and ou from Cert
         String cn = cert.getCn();
         String l = uk.ac.ngs.service.CertUtil.extractDnAttribute(cert.getDn(), CertUtil.DNAttributeType.L);
@@ -82,11 +81,11 @@ public class AddRaContacts {
 
         //Check if an RA Operator record already exists in the table.
         List<RaopListRow> raList = this.raopDao.findBy(ou, l, cn, null);
-        if(!raList.isEmpty())
+        if(raList.isEmpty())
         {
-            modelMap.put("errorMessage", "An RA Operator Record already exists for this RA Operator.");
+            modelMap.put("errorMessage", "An RA Operator Record does not exist for this RA Operator.");
         }
-    }   
+    }
     
     @ModelAttribute(AddRaContacts.ADD_RA_OPERATOR_FORM_BEAN_SESSIONSCOPE)
     public AddRaOperatorBean createFormBean() {
@@ -94,7 +93,7 @@ public class AddRaContacts {
     }
     
     /**
-     * Handle POSTs to "/caop/addracontacts/add" to add a new RA Contact to 
+     * Handle POSTs to "/raop/editracontactdetails/edit" to add a new RA Contact to 
      * the RA Operator DB Table.
      * <p>
      * The view is always redirected and redirect attributes added as necessary; 
@@ -108,8 +107,8 @@ public class AddRaContacts {
      * @return "redirect:/raop/viewcert" on revocation failure, or 
      * "redirect:/raop/viewcert" on successful revocation. 
      */
-    @RequestMapping(value="/add", method=RequestMethod.POST)
-    public String addRaContact(@Valid AddRaOperatorBean addRaOperatorBean, BindingResult result,
+    @RequestMapping(value="/edit", method=RequestMethod.POST)
+    public String editRaContact(@Valid AddRaOperatorBean addRaOperatorBean, BindingResult result,
         RedirectAttributes redirectAttrs) {
         /*long revoke_cert_key = revokeCertFormBean.getCert_key(); 
         if(result.hasErrors()){
@@ -137,7 +136,7 @@ public class AddRaContacts {
             return "redirect:/raop/viewcrr";
         }*/
         
-        return "redirect:/caop/raoplist";
+        return "redirect:/raop/viewyourra";
     }
     
     @Inject
@@ -150,3 +149,4 @@ public class AddRaContacts {
         this.raopDao = raopDao;
     }
 }
+

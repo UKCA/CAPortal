@@ -12,9 +12,9 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
         <link rel="shortcut icon" href="${pageContext.request.contextPath}/resources/favicon.ico" type="image/x-icon"/> 
-        <title>Add New RA Contact</title>
+        <title>Edit Your RA Contact Details</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" content="Page for adding an RA-OPs Contact Details" />
+        <meta name="description" content="Page for RA Operator to edit their details" />
         <meta name="author" content="Josh Hadley" />
         <!-- Styles -->
         <%--<jsp:include page="../common/styles.jsp" />--%>
@@ -29,7 +29,7 @@
         <div id="wrap">
             <div class="row">
                 <div class="col-xs-offset-1">
-                    <h2>Add RA Contact Details</h2>
+                    <h2>Edit RA Contact Details</h2>
                     <br/>
                     <c:if test="${errorMessage != null}">
                         <div id="message" class="error">${errorMessage}</div>
@@ -39,7 +39,7 @@
                     </c:if>
                     <div class="col-xs-11 col-lg-10">
                             
-                        <form:form id="form" method="post" action="${pageContext.request.contextPath}/caop/addracontact/add"
+                        <form:form id="form" method="post" action="${pageContext.request.contextPath}/raop/editracontactdetails/edit"
                                    modelAttribute="addRaOperatorBean" cssClass="form-horizontal">
                             <div class="form-group">
                                 <div class="col-xs-5 col-lg-5">
@@ -66,37 +66,7 @@
                                     path="name" cssClass="text-error" />
                                 </div>
                             </div>
-                            
-                            <div class="form-group">
-                                <div class="col-xs-5 col-lg-5">
-                                    RA
-                                </div>
-                                <div class="col-xs-5 col-lg-5">
-                                    <form:select path="ra" class="form-control">
-                                    <form:options items="${ralistArray}"/>
-                                    </form:select> 
-                                    <form:errors path="ra" cssClass="text-error" />
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <div class="col-xs-5 col-lg-5">
-                                    RA Operator?
-                                </div>
-                                <div class="col-xs-5 col-lg-5">
-                                    <form:checkbox path="raOperator"/>
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <div class="col-xs-5 col-lg-5">
-                                    RA Manager?
-                                </div>
-                                <div class="col-xs-5 col-lg-5">
-                                    <form:checkbox path="raManager"/>
-                                </div>
-                            </div>
-                            
+                           
                             <div class="form-group">
                                 <div class="col-xs-5 col-lg-5">
                                     E-mail
@@ -178,3 +148,4 @@
         <%@ include file="../../jspf/footer.jspf" %>
     </body>
 </html>
+

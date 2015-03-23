@@ -153,8 +153,7 @@
                        <div class="col-xs-11">
                             <c:forEach var="raop" items="${sessionScope.raopSearchPageHolder.source}"> 
                                 <c:if test="${raop.raoplistSize == 0}">
-                                    <!--<a href="${pageContext.request.contextPath}/caop/addracontacts?certId=${raop.certRow.cert_key}">${raop.certRow.cert_key}</a>-->
-                                    ${raop.certRow.cert_key}
+                                    <a href="${pageContext.request.contextPath}/caop/addracontacts?certId=${raop.certRow.cert_key}">${raop.certRow.cert_key}</a>
                                 </c:if>
                             </c:forEach>
                         </div>
@@ -162,7 +161,7 @@
                         <br/>
                         <div class="col-xs-9">    
                             <div class="form-group">
-                                <form:form method="post"
+                                <form:form method="get"
                                     action="${pageContext.request.contextPath}/caop/addracontacts">
                                     <div class="col-xs-1 col-lg-1">
                                         <button type="submit" class="btn btn-sm btn-primary">
@@ -247,7 +246,7 @@
                                    <tr>
                                        <c:if test="${isEmpty == 'false'}">
                                             <td>
-                                                 <form:form method="post" action="${pageContext.request.contextPath}/caop/raoplist/goto"
+                                                <form:form method="post" action="${pageContext.request.contextPath}/caop/raoplist/goto"
                                                 commandName="editRaContactBean" >
                                                     <button type="submit" class="btn btn-sm">Edit</button>
                                                 </form:form>

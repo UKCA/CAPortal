@@ -66,6 +66,20 @@
                             </ul>
                         </li>
                     </sec:authorize>
+                    
+                    <!-- Role Awareness Text -->
+                    <sec:authorize access="hasRole('ROLE_CERTOWNER')">
+                        <li><a>Logged in as
+
+                        <sec:authorize access="hasRole('ROLE_RAOP')">
+                            <b>RA_OP</b>
+                        </sec:authorize>    
+                        <sec:authorize access="hasRole('ROLE_CAOP')">
+                            and <b>CA_OP</b>
+                        </sec:authorize>
+                            Certificate Owner </a></li>
+                    </sec:authorize>
+                        
                     <!-- Logout handler - don't think? is needed as we are using x509 with no 
                     un/pw auth fallback handler chain - but we may want to clear the security context. -->    
                     <%--<jsp:useBean id="now" scope="session" class="java.util.Date"/>
