@@ -12,7 +12,7 @@
  */
 package uk.ac.ngs.controllers;
 
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -21,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -28,12 +29,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.ac.ngs.dao.JdbcCertificateDao;
+import uk.ac.ngs.dao.JdbcRalistDao;
 import uk.ac.ngs.dao.JdbcRaopListDao;
 import uk.ac.ngs.domain.CertificateRow;
+import uk.ac.ngs.domain.RalistRow;
 import uk.ac.ngs.domain.RaopListRow;
-import uk.ac.ngs.forms.AddRaOperatorBean;
-import uk.ac.ngs.forms.RevokeCertFormBean;
+import uk.ac.ngs.forms.RaContactBean;
 import uk.ac.ngs.service.CertUtil;
+import uk.ac.ngs.service.RaContactService;
 
 /**
  * Controller for CA operators to add an RA Contact to the RA Operators Table.
@@ -48,6 +51,7 @@ public class AddRaContacts {
     private static final Log log = LogFactory.getLog(ViewCert.class);
     private JdbcCertificateDao certDao;
     private JdbcRaopListDao raopDao;
+    private JdbcRalistDao ralistDao;
     //private final EmailValidator emailValidator = new EmailValidator();
     
      /**
@@ -60,6 +64,17 @@ public class AddRaContacts {
 
         CertificateRow cert = new CertificateRow();
         modelMap.put("cert", cert);
+        
+        List<RalistRow> rows = this.ralistDao.findAllByActive(true, null, null);  
+        List<String> raArray = new ArrayList<String>(rows.size());
+
+        // then add all other RAs
+        for (RalistRow row : rows) {
+            // BUG - have had trouble submitting RA values that contain whitespace, 
+            // so have replaced whitespace in ra with underscore 
+            raArray.add(row.getOu()+"_"+row.getL()); 
+        }
+        modelMap.addAttribute("raList", raArray.toArray()); 
     }
 
     @RequestMapping(method = RequestMethod.GET)
@@ -79,18 +94,36 @@ public class AddRaContacts {
         String l = uk.ac.ngs.service.CertUtil.extractDnAttribute(cert.getDn(), CertUtil.DNAttributeType.L);
         String ou = uk.ac.ngs.service.CertUtil.extractDnAttribute(cert.getDn(), CertUtil.DNAttributeType.OU);
         log.info("Found: " + cn);
-
+        
         //Check if an RA Operator record already exists in the table.
         List<RaopListRow> raList = this.raopDao.findBy(ou, l, cn, null);
         if(!raList.isEmpty())
         {
             modelMap.put("errorMessage", "An RA Operator Record already exists for this RA Operator.");
         }
+        
+        RaContactBean contact = createFormBean();
+        contact.setCert_key(cert.getCert_key());
+        contact.setName(cn);
+        contact.setEmailAddress(cert.getEmail());
+        contact.setRa(ou + "_" + l);
+        modelMap.put("addRaOperatorBean", contact);
+        
+        List<RalistRow> rows = this.ralistDao.findAllByActive(true, null, null);  
+        List<String> raArray = new ArrayList<String>(rows.size());
+
+        // then add all other RAs
+        for (RalistRow row : rows) {
+            // BUG - have had trouble submitting RA values that contain whitespace, 
+            // so have replaced whitespace in ra with underscore 
+            raArray.add(row.getOu()+"_"+row.getL()); 
+        }
+        modelMap.addAttribute("raList", raArray.toArray()); 
     }   
     
     @ModelAttribute(AddRaContacts.ADD_RA_OPERATOR_FORM_BEAN_SESSIONSCOPE)
-    public AddRaOperatorBean createFormBean() {
-        return new AddRaOperatorBean();
+    public RaContactBean createFormBean() {
+        return new RaContactBean();
     }
     
     /**
@@ -108,37 +141,35 @@ public class AddRaContacts {
      * @return "redirect:/raop/viewcert" on revocation failure, or 
      * "redirect:/raop/viewcert" on successful revocation. 
      */
-    @RequestMapping(value="/add", method=RequestMethod.POST)
-    public String addRaContact(@Valid AddRaOperatorBean addRaOperatorBean, BindingResult result,
+    /*@RequestMapping(value="/add", method=RequestMethod.POST)
+    public String addRaContact(@Valid RaContactBean addRaOperatorBean, BindingResult result,
         RedirectAttributes redirectAttrs) {
-        /*long revoke_cert_key = revokeCertFormBean.getCert_key(); 
+        String raEmail = addRaOperatorBean.getEmailAddress();
         if(result.hasErrors()){
-            log.warn("binding and validation errors on fullrevokeCertificate");
-            redirectAttrs.addFlashAttribute("errorMessage", "Revocation not submitted");
+            log.warn("binding and validation errors on editRaContact");
+            redirectAttrs.addFlashAttribute("errorMessage", "Changes not submitted");
             StringBuilder bindError = new StringBuilder("");
             for (ObjectError error : result.getAllErrors()) {
                 bindError.append(error.getDefaultMessage()).append(" ");
             }
             redirectAttrs.addFlashAttribute("formRevokeErrorMessage", bindError); 
-            redirectAttrs.addAttribute("certId", revoke_cert_key);
+            redirectAttrs.addAttribute("raop", raEmail);
             return "redirect:/raop/viewcert"; 
         } 
 
-        ProcessRevokeService.ProcessRevokeResult revokeResult = processRevokeService.fullRevokeCertificate(
-                revokeCertFormBean, securityContextService.getCaUserDetails().getCertificateRow());
+        RaContactService raService = new RaContactService();
+        RaContactService.RaContactServiceResult raContactResult = raService.addRaContact(addRaOperatorBean);
 
-        if (!revokeResult.getSuccess()) {
-            redirectAttrs.addFlashAttribute("errorMessage", revokeResult.getErrors().getAllErrors().get(0).getDefaultMessage());
-            redirectAttrs.addAttribute("certId", revoke_cert_key);
-            return "redirect:/raop/viewcert";
+        if (!raContactResult.getSuccess()) {
+            redirectAttrs.addFlashAttribute("errorMessage", raContactResult.getErrors().getAllErrors().get(0).getDefaultMessage());
+                        redirectAttrs.addAttribute("raop", raEmail);
+            return "redirect:/raop/viewyourra";
         } else {
             redirectAttrs.addFlashAttribute("message", "Certificate SUSPENDED and an APPROVED CRR was created");
-            redirectAttrs.addAttribute("requestId", revokeResult.getCrrId());
-            return "redirect:/raop/viewcrr";
-        }*/
-        
-        return "redirect:/caop/raoplist";
-    }
+            redirectAttrs.addAttribute("requestId", raContactResult.getCertKey());
+            return "redirect:/raop/viewyourra";
+        }
+    }*/
     
     @Inject
     public void setJdbcCertificateDao(JdbcCertificateDao dao) {
@@ -148,5 +179,10 @@ public class AddRaContacts {
     @Inject
     public void setJdbcRaopListDao(JdbcRaopListDao raopDao) {
         this.raopDao = raopDao;
+    }
+    
+    @Inject
+    public void setJdbcRalistDao(JdbcRalistDao ralistDao) {
+        this.ralistDao = ralistDao;
     }
 }

@@ -112,7 +112,7 @@ public class ViewYourRA {
             raop = raRow.get(0);
         }
         
-        log.info("Current RA-OP: " + raop);
+        log.info("Current RA-OP: " + raop.getName());
         
         if (negatedOuPattern.matcher(ou).find()) {
             // provide an empty list instead
@@ -127,7 +127,7 @@ public class ViewYourRA {
             model.put("user", raop);
             
             List<ViewRaContact> contacts = new ArrayList<ViewRaContact>(0); 
-            List<CertificateRow> certRows = this.certDao.findActiveRAsBy(null, ou); 
+            List<CertificateRow> certRows = this.certDao.findActiveRAsBy(l, ou);
             for(CertificateRow certRow : certRows){
                 String loc = CertUtil.extractDnAttribute(certRow.getDn(), CertUtil.DNAttributeType.L); 
                 List<RaopListRow> raoplistRowsWithSameCnOuLoc = this.jdbcRaopListDao.findBy( ou, loc, certRow.getCn(), Boolean.TRUE);
@@ -138,20 +138,16 @@ public class ViewYourRA {
                    contacts.add(contact);  
                 }
             }
-            
-            if (contacts.isEmpty())
-            {
-                model.put("contacts", "Empty"); 
-            }
-            else{
-                model.put("contacts", contacts); 
-            }
+            log.info("Number of RA-OP: " + contacts.size());
+            model.put("contacts", contacts); 
         }
     }
 
     /**
      * Select the raop/viewyourra view to render.
      *
+     * @param locale
+     * @param model
      * @return raop/viewyourra
      */
     @RequestMapping(method = RequestMethod.GET)

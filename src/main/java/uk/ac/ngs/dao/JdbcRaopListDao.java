@@ -245,5 +245,67 @@ public class JdbcRaopListDao {
         return Pair.create(sql.trim(), namedParameters);
     }
     
+    /**
+     * Insert a new row into the 'raop' table using the values from the given RaopListRow. 
+     * Important: the crr_key (PK) must be set to a value that is not already in use 
+     * (the row PK is set by the calling client and not a db sequence -  
+     * this is an inherited legacy issue).
+     * 
+     * @param raop 
+     * @return the number of rows affected (should always be 1)
+     */
+    public int insertRaopListRow(RaopListRow raop) {
+        if (raop.getCn() == null) {
+            throw new IllegalArgumentException("Invalid crr, crr.crr_key is zero or negative");
+        }
+        Map<String, Object> namedParameters = this.buildParameterMap(raop);
+        String INSERT_RAOP = "insert into raoplist (ou, l, name, email, phone, street, city, postcode, cn, manager, operator, trainingdate, title, conemail, location, ra_id, department_hp, institute_hp, active, ra_id2) "
+                + "values(:ou, :l, :name, :email, :phone, :street, :city, :postcode, :cn, :manager, :operator, :trainingdate, :title, :conemail, :location, :ra_id, :department_hp, :institute_hp, :active, :ra_id2)";
 
+        return this.jdbcTemplate.update(INSERT_RAOP, namedParameters);
+    }
+
+    /**
+     * Update a specific row in the 'raop' table using the values from the given RaopListRow. 
+     * Important: the crr_key (PK) must be set to a value that is not already in use 
+     * (the row PK is set by the calling client and not a db sequence -  
+     * this is an inherited legacy issue).
+     * 
+     * @param raop 
+     * @return the number of rows affected (should always be 1)
+     */
+    public int updateRaopRow(RaopListRow raop) {
+        if (raop.getCn() == null) {
+            throw new IllegalArgumentException("Invalid crr, crr.crr_key is zero or negative");
+        }
+        Map<String, Object> namedParameters = this.buildParameterMap(raop);
+        String UPDATE_RAOP = "update raoplist SET 'name' = 'Test' WHERE ou = :ou AND l = :l AND name = :name AND email = :email AND phone = :phone AND street = :street AND city = :city AND postcode = :postcode AND cn = :cn AND manager = :manager AND operator = :operator "
+                + "AND trainingdate = :trainingdate AND title = :title AND conemail = :coneemail AND location = :location AND ra_id = :ra_id AND department_hp = :department_hp AND institute_hp = :institute_hp AND active = :active AND ra_id2 = :ra_id2;";
+             
+        return this.jdbcTemplate.update(UPDATE_RAOP, namedParameters);
+    }
+    
+    private Map<String, Object> buildParameterMap(RaopListRow raop) {
+        Map<String, Object> namedParameters = new HashMap<String, Object>();
+        namedParameters.put("ou", raop.getOu());
+        namedParameters.put("l", raop.getL());
+        namedParameters.put("name", raop.getName());
+        namedParameters.put("email", raop.getEmail());
+        namedParameters.put("phone", raop.getPhone());
+        namedParameters.put("city", raop.getCity());
+        namedParameters.put("postcode", raop.getPostcode());
+        namedParameters.put("cn", raop.getCn());
+        namedParameters.put("manager", raop.getManager());
+        namedParameters.put("operator", raop.getOperator());
+        namedParameters.put("trainingdate", raop.getTrainingDate());
+        namedParameters.put("title", raop.getTitle());
+        namedParameters.put("coneemail", raop.getConeemail());
+        namedParameters.put("location", raop.getLocation());
+        namedParameters.put("ra_id", raop.getRa_id());
+        namedParameters.put("department_hp", raop.getDepartment_hp());
+        namedParameters.put("institute_hp", raop.getInstitute_hp());
+        namedParameters.put("active", raop.getActive());
+        namedParameters.put("ra_id2", raop.getRa_id2());
+        return namedParameters;
+    }
 }

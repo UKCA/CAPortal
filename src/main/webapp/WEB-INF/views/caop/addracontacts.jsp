@@ -73,7 +73,7 @@
                                 </div>
                                 <div class="col-xs-5 col-lg-5">
                                     <form:select path="ra" class="form-control">
-                                    <form:options items="${ralistArray}"/>
+                                    <form:options items="${raList}"/>
                                     </form:select> 
                                     <form:errors path="ra" cssClass="text-error" />
                                 </div>

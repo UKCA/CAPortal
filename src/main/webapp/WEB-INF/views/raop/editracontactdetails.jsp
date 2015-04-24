@@ -40,7 +40,7 @@
                     <div class="col-xs-11 col-lg-10">
                             
                         <form:form id="form" method="post" action="${pageContext.request.contextPath}/raop/editracontactdetails/edit"
-                                   modelAttribute="addRaOperatorBean" cssClass="form-horizontal">
+                                   modelAttribute="editRaContactBean" cssClass="form-horizontal">
                             <div class="form-group">
                                 <div class="col-xs-5 col-lg-5">
                                     Title

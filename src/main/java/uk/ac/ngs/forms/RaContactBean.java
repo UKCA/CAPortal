@@ -13,13 +13,16 @@
 package uk.ac.ngs.forms;
 
 import java.io.Serializable;
+import java.util.Date;
 import javax.validation.constraints.Pattern;
 
 /**
  *
  * @author Josh Hadley
  */
-public class AddRaOperatorBean implements Serializable{
+public class RaContactBean implements Serializable{
+    
+    private long cert_key;
     
     private String title;
     
@@ -47,7 +50,22 @@ public class AddRaOperatorBean implements Serializable{
     private String postcode;
     
     @Pattern(message="Invalid Training Date (DD-MM-YYYY)", regexp="^[0-9a-zA-z ]{10,20}$")
-    private String training;
+    private Date training;
+ 
+    /**
+     * @return the title
+     */
+    public long getCert_key() {
+        return cert_key;
+    }
+
+    /**
+     * @param cert_key the title to set
+     */
+    public void setCert_key(long cert_key) {
+        this.cert_key = cert_key;
+    }
+    
     
     /**
      * @return the title
@@ -192,14 +210,14 @@ public class AddRaOperatorBean implements Serializable{
     /**
      * @return the training
      */
-    public String getTraining() {
+    public Date getTraining() {
         return training;
     }
 
     /**
      * @param training the training to set
      */
-    public void setTraining(String training) {
+    public void setTraining(Date training) {
         this.training = training;
     }
 }
