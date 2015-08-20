@@ -13,53 +13,46 @@
 package uk.ac.ngs.service;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.inject.Inject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Errors;
 import org.springframework.validation.MapBindingResult;
-import uk.ac.ngs.common.MutableConfigParams;
 import uk.ac.ngs.dao.JdbcCertificateDao;
 import uk.ac.ngs.dao.JdbcRaopListDao;
 import uk.ac.ngs.domain.CertificateRow;
 import uk.ac.ngs.domain.RaopListRow;
 import uk.ac.ngs.forms.RaContactBean;
-import uk.ac.ngs.security.SecurityContextService;
-import uk.ac.ngs.service.email.EmailService;
+//import uk.ac.ngs.security.SecurityContextService;
+//import uk.ac.ngs.service.email.EmailService;
 
 /**
- * Process RA Operator additions or changes. 
+ * Service Class for processing new RA Operators or updates to existing RA-OPs 
  * Intended to be called from higher level layers, e.g. from Web controllers.
- * TODO: Throw runtime exceptions that are more suitable for business layer, 
- * extract interface once stable. 
  * 
  * @author Josh Hadley
  */
 @Service
 public class RaContactService {
-/*
-    private static final Log log = LogFactory.getLog(ProcessRevokeService.class);
+
+    private static final Log log = LogFactory.getLog(RaContactService.class);
+    private RaopManagerService raopService;
     private JdbcCertificateDao certDao;
     private JdbcRaopListDao raopDao;
-    private RaopManagerService raopService;
-    private SecurityContextService securityContextService;
-    private EmailService emailService;
-    private MutableConfigParams mutableConfigParams; 
-
+    
     /**
      * Immutable transfer object that defines the result (success or fail) of a 
      * service layer revocation operation. 
      */
-    /*public static class RaContactServiceResult {
+    public static class RaContactServiceResult {
 
         private final Errors errors;
         private final boolean success;
@@ -69,16 +62,17 @@ public class RaContactService {
          * Construct an instance to signify a <b>success</b>. 
          * @param certKey 
          */
-       /* public RaContactServiceResult(Long certKey) {
+        public RaContactServiceResult(Long certKey) {
             this.success = true;
             this.errors = new MapBindingResult(new HashMap<String, String>(), "raContact");
             this.certKey = certKey;
         }
+        
         /**
          * Construct an instance to signify a <b>fail</b>. 
          * @param errors 
          */
-        /*public RaContactServiceResult(Errors errors) {
+        public RaContactServiceResult(Errors errors) {
             this.errors = errors;
             this.success = false;
             this.certKey = null; 
@@ -105,7 +99,13 @@ public class RaContactService {
      * @return 
      */
     /*@Transactional
-    public RaContactServiceResult addRaContact(RaContactBean raOperatorBean) {
+    public RaContactServiceResult addRaContact(RaContactBean raOperatorBean)
+        throws IOException {
+        return this.addRaContactHelper(raOperatorBean);
+    }
+    
+    public RaContactServiceResult addRaContactHelper(RaContactBean raOperatorBean) 
+        throws IOException {
 
         Errors errors = new MapBindingResult(new HashMap<String, String>(), "raContact");
         long raop_cert_key = raOperatorBean.getCert_key();
@@ -171,7 +171,7 @@ public class RaContactService {
             operator = raOperatorBean.getRaOperator();
         }
         if(raOperatorBean.getTraining() != null){
-            trainingDate = raOperatorBean.getTraining();
+            trainingDate = convertString(raOperatorBean.getTraining());
         }
      
         
@@ -184,117 +184,99 @@ public class RaContactService {
                             institute_hp, ra_id2);
         return new RaContactServiceResult(raopCert.getCert_key());
     }
-
+    */
+    
     /**
      * Perform a update query on a record (Either done by a CA-OP or if the RA-OP is editing their own details)
      * If successful, the changes will be applied to the <tt>raop</tt> row. 
      * 
-     * @param raOperatorBean Update data 
-     * @param clientData Client/calling RA 
+     * @param raOperatorBean Update data
      * @return 
+     * @throws java.io.IOException 
      */
-   /*@Transactional
-    public RaContactServiceResult editRaContact(
-            RaContactBean raOperatorBean){
+    @Transactional
+    public RaContactServiceResult editRaContact(RaContactBean raOperatorBean) 
+            throws IOException {    
+        return this.editRaContactHelper(raOperatorBean); 
+    }
 
-        Errors errors = new MapBindingResult(new HashMap<String, String>(), "raContact");
+    private RaContactServiceResult editRaContactHelper (RaContactBean raOperatorBean) 
+            throws IOException {
+
         long raop_cert_key = raOperatorBean.getCert_key();
-
-        //log.info("RA request revocation by: [" + ra_cert_key + "] for certificate: [" + raop_cert_key + "]");
-
-        CertificateRow revokeCert = this.certDao.findById(raop_cert_key);
-        // Check whether this cert can actually be revoked (VALID not expired) 
-        if (!this.canUserDoEdit(revokeCert)) {
-            errors.reject("invalid.revocation.cert.notvalid", "Revocation Failed - Certificate is not VALID or has expired");
-           // log.warn("RA revocation failed by: [" + ra_cert_key + "] for certificate: [" + raop_cert_key + "] - cert is not valid or has expired");
-            return new RaContactServiceResult(errors);
-        }
-
-        // revoke with status NEW 
-        //long crrId = this.crrService.revokeCertificate(raop_cert_key, ra_cert_key,
-                //raOperatorBean.getReason(), CrrManagerService.CRR_STATUS.NEW);
-     
-        // Email the home RAs 
-        /*boolean emailRaOnRevoke = Boolean.parseBoolean(this.mutableConfigParams.getProperty("email.ra.on.revoke")); 
-        if (emailRaOnRevoke) {
-            String loc = CertUtil.extractDnAttribute(revokeCert.getDn(), CertUtil.DNAttributeType.L);
-            String ou = CertUtil.extractDnAttribute(revokeCert.getDn(), CertUtil.DNAttributeType.OU);
-            Set<String> raEmails = new HashSet<String>(); // use set so duplicates aren't added 
-            // Find all the RA email addresses, iterate and send   
-            List<CertificateRow> raCerts = this.certDao.findActiveRAsBy(loc, ou);
-            for (CertificateRow raCert : raCerts) {
-                if (raCert.getEmail() != null) {
-                    raEmails.add(raCert.getEmail());
-                }
-            }
-
-            // if raEmails is empty (possible, since there may not be an RAOP 
-            // for this RA anymore), then fallback to email the default list
-            if (raEmails.isEmpty()) {
-                log.warn("No RAOP exits for [" + loc + " " + ou + "] emailing CA default");
-                  String[] allemails = this.mutableConfigParams.getProperty("email.admin.addresses").split(",");  
-                  raEmails.addAll(Arrays.asList(allemails));
-            }
-            this.emailService.sendRaEmailOnRevoke(revokeCert.getDn(), raEmails, raop_cert_key);
-        }*/
         
-       /* return new RaContactServiceResult(raop_cert_key);
-    }
-
-    private boolean canUserDoEdit(CertificateRow cert) {
-        if (this.securityContextService.getCaUserDetails().getAuthorities()
-                .contains(new SimpleGrantedAuthority("ROLE_CAOP"))) {
-            return true;
-        } else { //Check if the current user is the same person as the requested raop
-            long certKey = cert.getCert_key();
-            long raOpKey = this.securityContextService.getCaUserDetails().getCertificateRow().getCert_key();
-            if (certKey == raOpKey) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean doesRowExist(CertificateRow cert) {
-        String loc = uk.ac.ngs.common.CertUtil.extractDnAttribute(cert.getDn(), uk.ac.ngs.common.CertUtil.DNAttributeType.L);
-        String ou = uk.ac.ngs.common.CertUtil.extractDnAttribute(cert.getDn(), uk.ac.ngs.common.CertUtil.DNAttributeType.OU); 
-        String cn = uk.ac.ngs.common.CertUtil.extractDnAttribute(cert.getDn(), uk.ac.ngs.common.CertUtil.DNAttributeType.CN); 
-        List<RaopListRow> raop = this.raopDao.findBy(loc, ou, cn, null);
+        log.info("CertID: " + raop_cert_key);
         
-        return raop.isEmpty();
+        CertificateRow cert = this.certDao.findById(raop_cert_key);
+        
+        String ou = CertUtil.extractDnAttribute(cert.getDn(), CertUtil.DNAttributeType.OU); //CLRC
+        String l = CertUtil.extractDnAttribute(cert.getDn(), CertUtil.DNAttributeType.L); //RAL.;
+        
+        List<RaopListRow> raops = this.raopDao.findBy(ou, l, cert.getCn(), Boolean.TRUE);
+            
+        RaopListRow raop = addChanges(raops.get(0), raOperatorBean);
+        
+        // update with new data 
+        this.raopService.updateRaopContact(raop);
+        
+        return new RaContactServiceResult(raop_cert_key);
     }
     
-    private boolean notNull() {
-        return true;
-    }
+    private RaopListRow addChanges(RaopListRow raop, RaContactBean changes){
 
+        if(!changes.getTitle().equals(raop.getTitle())){
+            raop.setTitle(changes.getTitle());
+        }
+        if(!changes.getName().equals(raop.getName())){
+            raop.setName(changes.getName());
+        }
+        if(!changes.getEmailAddress().equals(raop.getEmail())){
+            raop.setEmail(changes.getEmailAddress());
+        }
+        if(!changes.getPhone().equals(raop.getPhone())){
+            raop.setPhone(changes.getPhone());
+        }
+        if(!changes.getStreet().equals(raop.getStreet())){
+            raop.setStreet(changes.getStreet());
+        }
+        if(!changes.getCity().equals(raop.getCity())){
+            raop.setCity(changes.getCity());
+        }
+        if(!changes.getPostcode().equals(raop.getPostcode())){
+            raop.setPostcode(changes.getPostcode());
+        }
+        /*if(!changes.getTraining().equals(raop.getTrainingDate().toString())){
+            raop.setTrainingDate(convertString(changes.getTraining()));
+        }*/
+        
+        return raop;
+    }
+    
+    private Date convertString(String string){
+        Date date; 
+        DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+        try {
+        date = formatter.parse(string);
+        }
+        catch(ParseException e){
+            date = null;
+        }
+        
+        return date;
+    }
+    
     @Inject
     public void setRaopManagerService(RaopManagerService raopService) {
         this.raopService = raopService;
     }
-
+    
     @Inject
-    public void setJdbcCertificateDao(JdbcCertificateDao dao) {
-        this.certDao = dao;
+    public void setJdbcCertificateDao(JdbcCertificateDao certDao){
+        this.certDao = certDao;
     }
-
+    
     @Inject
-    public void setSecurityContextService(SecurityContextService securityContextService) {
-        this.securityContextService = securityContextService;
+    public void setJdbcRaopListDao(JdbcRaopListDao raopDao){
+        this.raopDao = raopDao;
     }
-
-    /**
-     * @param emailService the emailService to set
-     */
-    /*@Inject
-    public void setEmailService(EmailService emailService) {
-        this.emailService = emailService;
-    }
-
-    @Inject
-    public void setMutableConfigParams(MutableConfigParams mutableConfigParams){
-       this.mutableConfigParams = mutableConfigParams;  
-    }
-    */
 }
-

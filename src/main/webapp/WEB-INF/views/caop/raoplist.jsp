@@ -234,6 +234,7 @@
                                <c:set var="count" value="0" scope="page" />
                                <c:forEach var="raop" items="${sessionScope.raopSearchPageHolder.source}">
                                    <c:url value="/caop/viewradetails?ou=${raop.ou}&l=${raop.loc}&certKey=${raop.certRow.cert_key}" var="viewraop" />
+                                   <c:url value="/raop/editracontactdetails?certId=${raop.certRow.cert_key}" var="editraop" />
                                    <c:set var="count" value="${count + 1}" scope="page"/>
                                    <c:choose>
                                        <c:when test="${raop.raoplistSize == 0}">
@@ -246,10 +247,7 @@
                                    <tr>
                                        <c:if test="${isEmpty == 'false'}">
                                             <td>
-                                                <form:form method="post" action="${pageContext.request.contextPath}/caop/raoplist/goto"
-                                                commandName="editRaContactBean" >
-                                                    <button type="submit" class="btn btn-sm">Edit</button>
-                                                </form:form>
+                                                <a href="${editraop}"><button class="btn btn-sm">Edit</button></a>
                                                 <c:forEach var="detail" items="${raop.raoplistRows}">
                                                     <form:form method="post" action="${pageContext.request.contextPath}/caop/raoplist/goto"
                                                     commandName="raActiveBean" >

@@ -12,11 +12,13 @@
  */
 package uk.ac.ngs.controllers;
 
+import java.io.IOException;
 import java.util.List;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -52,17 +54,25 @@ public class EditRaContactDetails {
     private SecurityContextService securityContextService;
     //private final EmailValidator emailValidator = new EmailValidator();
     
-     /**
-     * Name of the model attribute used to bind form POSTs.  
-     */
+     
+    // Name of the model attribute used to bind form POSTs.  
     public static final String EDIT_RA_OPERATOR_FORM_BEAN_SESSIONSCOPE = "editRaContactBean";
     
+    /**
+     * Populate the default model
+     * @param modelMap the current ModelMap
+     */
     @ModelAttribute
     public void populateDefaultModel(ModelMap modelMap) {
         CertificateRow cert = new CertificateRow();
         modelMap.put("cert", cert);
     }
 
+    /**
+     * Setup the loaded page based on the given certificate id and ModelMap
+     * @param certId Raop Certificate ID
+     * @param modelMap Current ModelMap
+     */
     @RequestMapping(method = RequestMethod.GET)
     public void handleEditRaContactsDetails(@RequestParam(required = true) Integer certId, ModelMap modelMap) {
         
@@ -92,10 +102,15 @@ public class EditRaContactDetails {
         RaopListRow raop = raList.get(0);
         
         RaContactBean editRaContactBean = createDefaultFormBean(raop);
+        editRaContactBean.setCert_key(certId);
         modelMap.put("editRaContactBean", editRaContactBean);
     }
     
-    
+    /***
+     * Creates the default form bean
+     * @param raop RaopListRow to edit
+     * @return Constructed Bean
+     */
     private RaContactBean createDefaultFormBean(RaopListRow raop){
         RaContactBean contact = new RaContactBean();
         
@@ -122,7 +137,7 @@ public class EditRaContactDetails {
             contact.setPostcode(raop.getPostcode());
         }
         if(raop.getTrainingDate() != null){
-            contact.setTraining(raop.getTrainingDate());
+            contact.setTraining(raop.getTrainingDate().toString());
         }
         
         return contact;
@@ -147,14 +162,18 @@ public class EditRaContactDetails {
      * @param redirectAttrs
      * @return "redirect:/raop/viewcert" on revocation failure, or 
      * "redirect:/raop/viewcert" on successful revocation. 
+     * @throws java.io.IOException 
      */
-    /*@RequestMapping(value="/edit", method=RequestMethod.POST)
+    @RequestMapping(value="/edit", method=RequestMethod.POST)
     public String editRaContact(@Valid RaContactBean raContactBean, BindingResult result,
-        RedirectAttributes redirectAttrs) {
-        long raCert_key = raContactBean.getCert_key();
+        RedirectAttributes redirectAttrs) throws IOException {
         
-        if(result.hasErrors()){
+        long raCert_key = raContactBean.getCert_key();
+        CertificateRow cert = this.certDao.findById(raCert_key);
+       
+        if(result.hasErrors() || !canUserDoEdit(cert) || ! doesRowExist(cert)){
             log.warn("binding and validation errors on editRaContact");
+            log.info(result.getAllErrors());
             redirectAttrs.addFlashAttribute("errorMessage", "Changes not submitted");
             StringBuilder bindError = new StringBuilder("");
             for (ObjectError error : result.getAllErrors()) {
@@ -162,22 +181,67 @@ public class EditRaContactDetails {
             }
             redirectAttrs.addFlashAttribute("formRevokeErrorMessage", bindError); 
             redirectAttrs.addAttribute("certId", raCert_key);
-            return "redirect:/raop/viewcert"; 
+            return "redirect:/raop/editracontactdetails"; 
         } 
-
+    
+        String loc = uk.ac.ngs.common.CertUtil.extractDnAttribute(cert.getDn(), uk.ac.ngs.common.CertUtil.DNAttributeType.L);
+        String ou = uk.ac.ngs.common.CertUtil.extractDnAttribute(cert.getDn(), uk.ac.ngs.common.CertUtil.DNAttributeType.OU); 
+        
+        List<RaopListRow> raop = this.raopDao.findBy(ou, loc, null, Boolean.TRUE);
+              
+        if(raop.isEmpty()){
+            log.warn("binding and validation errors on editRaContact");
+            log.info(result.getAllErrors());
+            redirectAttrs.addFlashAttribute("errorMessage", "Raop Row Does Not Exist");
+            StringBuilder bindError = new StringBuilder("");
+            for (ObjectError error : result.getAllErrors()) {
+                bindError.append(error.getDefaultMessage()).append(" ");
+            }
+            redirectAttrs.addFlashAttribute("formRevokeErrorMessage", bindError); 
+            redirectAttrs.addAttribute("certId", raCert_key);
+            return "redirect:/raop/editracontactdetails"; 
+        } 
+                       
         RaContactService raService = new RaContactService();
         RaContactService.RaContactServiceResult raContactResult = raService.editRaContact(raContactBean);
 
         if (!raContactResult.getSuccess()) {
             redirectAttrs.addFlashAttribute("errorMessage", raContactResult.getErrors().getAllErrors().get(0).getDefaultMessage());
             redirectAttrs.addAttribute("certId", raCert_key);
-            return "redirect:/raop/viewcert";
+            return "redirect:/raop/editracontactdetails";
         } else {
             redirectAttrs.addFlashAttribute("message", "Certificate SUSPENDED and an APPROVED CRR was created");
             redirectAttrs.addAttribute("requestId", raContactResult.getCertKey());
             return "redirect:/raop/viewyourra";
         }
-    }*/
+    }
+    
+    private boolean canUserDoEdit(CertificateRow cert) {
+        if (this.securityContextService.getCaUserDetails().getAuthorities() 
+                .contains(new SimpleGrantedAuthority("ROLE_CAOP"))) { //Check if the current user is a CA-OP
+            return true;
+        } else {  //Check if the current user is the same person as the requested RAOP and have the correct RA-OP privelleges
+            long certKey = cert.getCert_key();
+            long raOpKey = this.securityContextService.getCaUserDetails().getCertificateRow().getCert_key();
+            
+            if (this.securityContextService.getCaUserDetails().getAuthorities().contains(new SimpleGrantedAuthority("ROLE_RAOP")))
+            {
+                if (certKey == raOpKey) {
+                    return true;
+                } 
+            }
+        }
+        return false;
+    }
+
+    private boolean doesRowExist(CertificateRow cert) {
+        String loc = uk.ac.ngs.common.CertUtil.extractDnAttribute(cert.getDn(), uk.ac.ngs.common.CertUtil.DNAttributeType.L);
+        String ou = uk.ac.ngs.common.CertUtil.extractDnAttribute(cert.getDn(), uk.ac.ngs.common.CertUtil.DNAttributeType.OU); 
+        String cn = uk.ac.ngs.common.CertUtil.extractDnAttribute(cert.getDn(), uk.ac.ngs.common.CertUtil.DNAttributeType.CN); 
+        List<RaopListRow> raop = this.raopDao.findBy(loc, ou, cn, null);
+        
+        return raop.isEmpty();
+    }
     
     @Inject
     public void setJdbcCertificateDao(JdbcCertificateDao dao) {
@@ -187,6 +251,11 @@ public class EditRaContactDetails {
     @Inject
     public void setJdbcRaopListDao(JdbcRaopListDao raopDao) {
         this.raopDao = raopDao;
+    }
+    
+    @Inject
+    public void setSecurityContextService(SecurityContextService securityContextService) {
+        this.securityContextService = securityContextService;
     }
 }
 

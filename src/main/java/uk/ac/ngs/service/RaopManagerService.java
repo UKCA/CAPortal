@@ -20,9 +20,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.ac.ngs.dao.JdbcCertificateDao;
 import uk.ac.ngs.dao.JdbcRaopListDao;
-import uk.ac.ngs.domain.CertificateRow;
 import uk.ac.ngs.domain.RaopListRow;
 
 /**
@@ -34,15 +32,12 @@ import uk.ac.ngs.domain.RaopListRow;
 @Service
 public class RaopManagerService {
 
-    /*
     private JdbcRaopListDao jdbcRaopDao;
-    private JdbcCertificateDao jdbcCertDao; 
  
-    
     /**
      * A class to store the RA Contact Details in a correct format.
      */
-   /* public static class RaContact {
+    public static class RaContact {
        private final long cert_key;
        private final String loc; 
        private final String ou; 
@@ -64,6 +59,7 @@ public class RaopManagerService {
        private final String institute_hp;
        private final boolean active;
        private final long ra_id2;
+       
        public RaContact(long cert_key, String loc, String ou, String name, String email,
                         String phone, String street, String city, String postcode, String cn,
                         boolean manager, boolean operator, Date trainingDate, String title, 
@@ -96,160 +92,155 @@ public class RaopManagerService {
         /**
          * @return the cert_key
          */
-        /*public long getCert_key() {
+        public long getCert_key() {
             return cert_key;
         }
        
         /**
          * @return the loc
          */
-        /*public String getLoc() {
+        public String getLoc() {
             return loc;
         }
 
         /**
          * @return the ou
          */
-        /*public String getOu() {
+        public String getOu() {
             return ou;
         }
         
         /**
         * @return the name
         */
-        /*public String getName() {
+        public String getName() {
             return name;
         }
         
         /**
         * @return the email
         */
-        /*public String getEmail() {
+        public String getEmail() {
             return email;
         }
         
         /**
         * @return the phone
         */
-        /*public String getPhone() {
+        public String getPhone() {
             return phone;
         }
         
         /**
         * @return the street
         */
-        /*public String getStreet() {
+        public String getStreet() {
             return street;
         }
         
         /**
         * @return the city
         */
-        /*public String getCity() {
+        public String getCity() {
             return city;
         }
        
         /**
         * @return the postcode
         */
-    /*    public String getPostcode() {
+        public String getPostcode() {
             return postcode;
         }
         
         /**
         * @return the cn
         */
-    /*    public String getCn() {
+        public String getCn() {
             return cn;
         }
         
         /**
         * @return the manager
         */
-    /*    public boolean getManager() {
+        public boolean getManager() {
             return manager;
         }
         
         /**
         * @return the operator
         */
-    /*    public boolean getOperator() {
+        public boolean getOperator() {
             return operator;
         }
         
         /**
         * @return the trainingDate
         */
-    /*    public Date getTrainingDate() {
+        public Date getTrainingDate() {
             return trainingDate;
         }
         
         /**
         * @return the title
         */
-    /*    public String getTitle() {
+        public String getTitle() {
             return title;
         }
         
         /**
         * @return the coneemail
         */
-    /*    public String getConeemail() {
+        public String getConeemail() {
             return coneemail;
         }
         
         /**
         * @return the location
         */  
-    /*    public String getLocation() {
+        public String getLocation() {
             return location;
         }
         
         /**
         * @return the ra_id
         */
-    /*    public long getRa_id() {
+        public long getRa_id() {
             return ra_id;
         }
         
         /**
         * @return the department_hp
         */
-    /*    public String getDepartment_hp() {
+        public String getDepartment_hp() {
             return department_hp;
         }
         
         /**
         * @return the institute_hp
         */
-    /*    public String getInstitute_hp() {
+        public String getInstitute_hp() {
             return institute_hp;
         }
         
         /**
         * @return the active
         */
-    /*    public boolean getActive() {
+        public boolean getActive() {
             return active;
         }
         
         /**
         * @return the ra_id2
         */
-    /*    public long getRa_id2() {
+        public long getRa_id2() {
             return ra_id2;
         }
     }
     
     /**
-     * Revoke the certificate identified by the first PK using the second cert 
-     * PK/serial to identify the revoker. After successful completion, the 
-     * certificate status will be 'SUSPENDED' and a new 'crr' db row will be 
-     * inserted with the specified reason and crrStatus.
-     * <p>
-     * Given crr status must be APPROVED or NEW.  
-     * Note, there are no checks to ensure the certificate to be revoked is VALID and not-expired.
-     * There are no checks to determine if the raop is home ra (or not).  
+     * Add the new Raop Contact Row to the Raoplist Table.
+     * After successful completion, the Raop will be informed their details
+     * are now present within the table
      * 
      * @param loc L of Certificate
      * @param ou OU of Certificate
@@ -272,9 +263,8 @@ public class RaopManagerService {
      * @param ra_id2 Legacy RA_ID
      * @return The ID/PK of the newly inserted db 'crr' row.  
      */    
-    //@RolesAllowed("ROLE_CAOP")
-    //@Transactional
-   /* public RaopListRow addRaopContact(String loc, String ou, String name,
+    @RolesAllowed("ROLE_CAOP")
+    public RaopListRow addRaopContact(String loc, String ou, String name,
                             String email, String phone, String street, String city,
                             String postcode, String cn, boolean manager, boolean operator,
                             Date trainingDate, String title, String coneemail, 
@@ -289,38 +279,25 @@ public class RaopManagerService {
                             location, ra_id, department_hp,
                             institute_hp, ra_id2);
         if (this.jdbcRaopDao.insertRaopListRow(raopRow) != 1) {
-           throw new RuntimeException("Multiple crr rows attempted for udpate"); 
+           throw new RuntimeException("Row Insert Failed"); 
         }
         return raopRow;  
     }
-    
+
     /**
-     * Approve the crr with the specified key by the given raop. 
-     * After successful approval, the crr status will be set to APPROVED. 
-     * <p>
-     * Note, crr must have an existing status of NEW or APPROVED.
-     * There are no checks to determine if the raop is home ra (or not).  
-     *  
-     * @param crr_key_toApprove
-     * @param raopId 
+     * Update an existing Raop Row with a modified RaopListRow.   
+     * After success, the individual will be notified about the modifications
+     * 
+     * @param raop Updated Raop Record
      */
-    //@RolesAllowed({"ROLE_RAOP", "ROLE_CAOP"}) 
-    //@Transactional
-    /*public void updateRaopContact(long raopId){
+    @RolesAllowed({"ROLE_RAOP", "ROLE_CAOP"}) 
+    public void updateRaopContact(RaopListRow raop){
        // throw early  
-       if(crr_key_toApprove <=0 ){throw new IllegalArgumentException("Invalid crr_key_toApprove"); } 
-       if(raopId <=0 ){throw new IllegalArgumentException("Invalid raopId"); } 
-       RaopListRow raopRow = this.jdbcRaopDao.findById(crr_key_toApprove); 
-       if(raopRow == null){
-           throw new RuntimeException("Invalid crrRow - no row found with id "+crr_key_toApprove);
+       if(raop == null ){throw new IllegalArgumentException("Invalid Raop Row"); } 
+      
+       if(this.jdbcRaopDao.updateRaopRow(raop) != 1){
+          throw new RuntimeException("Multiple raop rows attempted for update");     
        }
-       // set the CRR status to APPROVED
-       raopRow.setStatus(CRR_STATUS.APPROVED.toString()); 
-       
-       if(this.jdbcRaopDao.updateRaopRow(raopRow) != 1){
-          throw new RuntimeException("Multiple crr rows attempted for udpate");     
-       }
-       // no need to upate the certrow 
     }
      
 
@@ -346,12 +323,13 @@ public class RaopManagerService {
         active          =   True/False
         ra_id2          =   Legacy Purposes
      */  
-   /* private RaopListRow buildRaopRow(String loc, String ou, String name,
+    private RaopListRow buildRaopRow(String loc, String ou, String name,
                             String email, String phone, String street, String city,
                             String postcode, String cn, boolean manager, boolean operator,
                             Date trainingDate, String title, String coneemail, 
                             String location, int ra_id, String department_hp,
                             String institute_hp, int ra_id2){
+        
         RaopListRow raopRow = new RaopListRow(); 
         raopRow.setOu(ou);
         raopRow.setL(loc);
@@ -379,15 +357,10 @@ public class RaopManagerService {
 
     
     /**
-     * @param jdbcRaopDao the jdbcCrrDao to set
+     * @param jdbcRaopDao the jdbcRaopDao to set
      */
     @Inject
-    /*public void setJdbcRaopListDao(JdbcRaopListDao jdbcRaopDao) {
+    public void setJdbcRaopListDao(JdbcRaopListDao jdbcRaopDao) {
         this.jdbcRaopDao = jdbcRaopDao;
     }
-
-    @Inject 
-    /*public void setJdbcCertificateDao(JdbcCertificateDao jdbcCertDao){
-        this.jdbcCertDao = jdbcCertDao; 
-    } 
 }

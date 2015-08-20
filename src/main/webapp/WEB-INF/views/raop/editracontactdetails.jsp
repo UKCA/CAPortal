@@ -42,11 +42,15 @@
                         <form:form id="form" method="post" action="${pageContext.request.contextPath}/raop/editracontactdetails/edit"
                                    modelAttribute="editRaContactBean" cssClass="form-horizontal">
                             <div class="form-group">
+                                <div hidden>
+                                    <form:input path="cert_key" value="${certId}" /> <form:errors
+                                            path="cert_key" cssClass="text-error" /> <
+                                </div>
                                 <div class="col-xs-5 col-lg-5">
                                     Title
                                 </div>
-                                <div class="col-xs-6 col-lg-6">
-                                    <form:select path="Title" class="form-control"> 
+                                <div class="col-xs-5 col-lg-5">
+                                    <form:select path="title" class="form-control"> 
                                         <form:option value="Mr"/>
                                         <form:option value="Mrs"/>
                                         <form:option value="Miss"/>
@@ -148,4 +152,3 @@
         <%@ include file="../../jspf/footer.jspf" %>
     </body>
 </html>
-
