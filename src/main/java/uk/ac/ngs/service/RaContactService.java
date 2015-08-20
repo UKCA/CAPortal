@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -186,6 +187,7 @@ public class RaContactService {
     }
     */
     
+    
     /**
      * Perform a update query on a record (Either done by a CA-OP or if the RA-OP is editing their own details)
      * If successful, the changes will be applied to the <tt>raop</tt> row. 
@@ -195,6 +197,7 @@ public class RaContactService {
      * @throws java.io.IOException 
      */
     @Transactional
+    @RolesAllowed({"ROLE_RAOP", "ROLE_CAOP"})
     public RaContactServiceResult editRaContact(RaContactBean raOperatorBean) 
             throws IOException {    
         return this.editRaContactHelper(raOperatorBean); 
@@ -205,6 +208,12 @@ public class RaContactService {
 
         long raop_cert_key = raOperatorBean.getCert_key();
         
+        if(certDao == null){
+            log.debug("It is null");
+        } else {
+            log.debug("It is not null");
+        }
+        
         log.info("CertID: " + raop_cert_key);
         
         CertificateRow cert = this.certDao.findById(raop_cert_key);
@@ -214,10 +223,12 @@ public class RaContactService {
         
         List<RaopListRow> raops = this.raopDao.findBy(ou, l, cert.getCn(), Boolean.TRUE);
             
-        RaopListRow raop = addChanges(raops.get(0), raOperatorBean);
+        RaopListRow raop = raops.get(0);
+        
+        RaopListRow updatedRaop = addChanges(raop, raOperatorBean);
         
         // update with new data 
-        this.raopService.updateRaopContact(raop);
+        this.raopService.updateRaopContact(raop, updatedRaop);
         
         return new RaContactServiceResult(raop_cert_key);
     }
