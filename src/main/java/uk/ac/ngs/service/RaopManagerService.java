@@ -291,11 +291,11 @@ public class RaopManagerService {
      * @param raop Updated Raop Record
      */
     @RolesAllowed({"ROLE_RAOP", "ROLE_CAOP"}) 
-    public void updateRaopContact(RaopListRow raop, RaopListRow updatedRaop){
+    public void updateRaopContact(RaopListRow raop){
        // throw early  
        if(raop == null ){throw new IllegalArgumentException("Invalid Raop Row"); } 
       
-       if(this.jdbcRaopDao.updateRaopRow(raop, updatedRaop) != 1){
+       if(this.jdbcRaopDao.updateRaopRow(raop) != 1){
           throw new RuntimeException("Multiple raop rows attempted for update");     
        }
     }
