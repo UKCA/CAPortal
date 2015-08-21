@@ -271,16 +271,31 @@ public class JdbcRaopListDao {
      * (the row PK is set by the calling client and not a db sequence -  
      * this is an inherited legacy issue).
      * 
-     * @param raop 
+     * @param raop Original RAOP Row
+     * @param updatedRaop Updated RAOP Row
      * @return the number of rows affected (should always be 1)
      */
-    public int updateRaopRow(RaopListRow raop) {
+    public int updateRaopRow(RaopListRow raop, RaopListRow updatedRaop) {
         if (raop.getCn() == null) {
-            throw new IllegalArgumentException("Invalid crr, crr.crr_key is zero or negative");
+            throw new IllegalArgumentException("Invalid raop certificate");
         }
         Map<String, Object> namedParameters = this.buildParameterMap(raop);
-        String UPDATE_RAOP = "update raoplist SET 'name' = 'Test' WHERE ou = :ou AND l = :l AND name = :name AND email = :email AND phone = :phone AND street = :street AND city = :city AND postcode = :postcode AND cn = :cn AND manager = :manager AND operator = :operator "
-                + "AND trainingdate = :trainingdate AND title = :title AND conemail = :coneemail AND location = :location AND ra_id = :ra_id AND department_hp = :department_hp AND institute_hp = :institute_hp AND active = :active AND ra_id2 = :ra_id2;";
+        Map<String, Object> namedParameters2 = this.buildUpdatedParameterMap(updatedRaop);
+        
+        namedParameters.putAll(namedParameters2);
+        
+        log.info("No. of Parameters: " + namedParameters.size());
+        
+        String UPDATE_RAOP = "update raoplist "
+                + "SET name = :nameUpdate, email = :emailUpdate, phone = :phoneUpdate, street = :streetUpdate, city = :cityUpdate, "
+                + "postcode = :postcodeUpdate, cn = :cnUpdate, manager = :managerUpdate, operator = :operatorUpdate, "
+                + "trainingdate = :trainingdateUpdate, title = :titleUpdate, conemail = :conemailUpdate, location = :locationUpdate, "
+                + "ra_id = :ra_idUpdate, department_hp = :department_hpUpdate, institute_hp = :institute_hpUpdate, "
+                + "active = :activeUpdate, ra_id2 = null "
+                + "WHERE ou = :ou "
+                + "AND l = :l "
+                + "AND cn = :cn "
+                + "AND active = :active;";
              
         return this.jdbcTemplate.update(UPDATE_RAOP, namedParameters);
     }
@@ -294,18 +309,44 @@ public class JdbcRaopListDao {
         namedParameters.put("phone", raop.getPhone());
         namedParameters.put("city", raop.getCity());
         namedParameters.put("postcode", raop.getPostcode());
+        namedParameters.put("street", raop.getStreet());
         namedParameters.put("cn", raop.getCn());
         namedParameters.put("manager", raop.getManager());
         namedParameters.put("operator", raop.getOperator());
         namedParameters.put("trainingdate", raop.getTrainingDate());
         namedParameters.put("title", raop.getTitle());
-        namedParameters.put("coneemail", raop.getConeemail());
+        namedParameters.put("conemail", raop.getConeemail());
         namedParameters.put("location", raop.getLocation());
         namedParameters.put("ra_id", raop.getRa_id());
         namedParameters.put("department_hp", raop.getDepartment_hp());
         namedParameters.put("institute_hp", raop.getInstitute_hp());
         namedParameters.put("active", raop.getActive());
         namedParameters.put("ra_id2", raop.getRa_id2());
+        return namedParameters;
+    }
+    
+    private Map<String, Object> buildUpdatedParameterMap(RaopListRow raop) {
+        Map<String, Object> namedParameters = new HashMap<String, Object>();
+        namedParameters.put("ouUpdate", raop.getOu());
+        namedParameters.put("lUpdate", raop.getL());
+        namedParameters.put("nameUpdate", raop.getName());
+        namedParameters.put("emailUpdate", raop.getEmail());
+        namedParameters.put("phoneUpdate", raop.getPhone());
+        namedParameters.put("cityUpdate", raop.getCity());
+        namedParameters.put("postcodeUpdate", raop.getPostcode());
+        namedParameters.put("streetUpdate", raop.getStreet());
+        namedParameters.put("cnUpdate", raop.getCn());
+        namedParameters.put("managerUpdate", raop.getManager());
+        namedParameters.put("operatorUpdate", raop.getOperator());
+        namedParameters.put("trainingdateUpdate", raop.getTrainingDate());
+        namedParameters.put("titleUpdate", raop.getTitle());
+        namedParameters.put("conemailUpdate", raop.getConeemail());
+        namedParameters.put("locationUpdate", raop.getLocation());
+        namedParameters.put("ra_idUpdate", raop.getRa_id());
+        namedParameters.put("department_hpUpdate", raop.getDepartment_hp());
+        namedParameters.put("institute_hpUpdate", raop.getInstitute_hp());
+        namedParameters.put("activeUpdate", raop.getActive());
+        namedParameters.put("ra_id2Update", raop.getRa_id2());
         return namedParameters;
     }
 }

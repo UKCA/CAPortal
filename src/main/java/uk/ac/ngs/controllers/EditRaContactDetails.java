@@ -52,6 +52,7 @@ public class EditRaContactDetails {
     private JdbcCertificateDao certDao;
     private JdbcRaopListDao raopDao;
     private SecurityContextService securityContextService;
+    private RaContactService raService;
     //private final EmailValidator emailValidator = new EmailValidator();
     
      
@@ -202,7 +203,7 @@ public class EditRaContactDetails {
             return "redirect:/raop/editracontactdetails"; 
         } 
                        
-        RaContactService raService = new RaContactService();
+        //RaContactService raService = new RaContactService();
         RaContactService.RaContactServiceResult raContactResult = raService.editRaContact(raContactBean);
 
         if (!raContactResult.getSuccess()) {
@@ -210,12 +211,14 @@ public class EditRaContactDetails {
             redirectAttrs.addAttribute("certId", raCert_key);
             return "redirect:/raop/editracontactdetails";
         } else {
-            redirectAttrs.addFlashAttribute("message", "Certificate SUSPENDED and an APPROVED CRR was created");
+            redirectAttrs.addFlashAttribute("message", "Contact Details Updated");
             redirectAttrs.addAttribute("requestId", raContactResult.getCertKey());
-            return "redirect:/raop/viewyourra";
+            return "redirect:/raop/editracontactdetails?certId=" + raContactResult.getCertKey();
         }
     }
     
+    
+    // Check to see if the current user can edit the RA Contact as either a CA-OP, or as a RA-OP in the same RA 
     private boolean canUserDoEdit(CertificateRow cert) {
         if (this.securityContextService.getCaUserDetails().getAuthorities() 
                 .contains(new SimpleGrantedAuthority("ROLE_CAOP"))) { //Check if the current user is a CA-OP
@@ -256,6 +259,11 @@ public class EditRaContactDetails {
     @Inject
     public void setSecurityContextService(SecurityContextService securityContextService) {
         this.securityContextService = securityContextService;
+    }
+    
+    @Inject 
+    public void setRaContactService(RaContactService raContactService){
+        this.raService = raContactService;
     }
 }
 
