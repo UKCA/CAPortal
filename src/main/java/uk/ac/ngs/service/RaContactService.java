@@ -266,8 +266,9 @@ public class RaContactService {
     private Date convertString(String string){
         Date date; 
         DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+        
         try {
-        date = formatter.parse(string);
+            date = formatter.parse(string);
         }
         catch(ParseException e){
             date = null;

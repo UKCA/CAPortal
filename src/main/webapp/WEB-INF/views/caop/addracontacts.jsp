@@ -165,7 +165,7 @@
                             
                             <div class="form-group">                            
                                 <div class="col-xs-5 col-lg-5">
-                                    <input type="submit"/>
+                                    <input type="submit" disabled />
                                 </div>
                             </div>
                         </form:form>

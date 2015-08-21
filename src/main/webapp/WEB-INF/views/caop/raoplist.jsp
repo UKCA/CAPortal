@@ -150,8 +150,11 @@
                    <!-- Controls for Adding an RA and an RA Operator -->
                    <div class="col-xs-2">  
                         <h3>RA-OPs To Be Added</h3>
+                        <!-- Provide a List of RA-OPs who are not present in the RaopList Database --->
                        <div class="col-xs-11">
+                           <!-- Grab the current list of results for the search criteria -->
                             <c:forEach var="raop" items="${sessionScope.raopSearchPageHolder.source}"> 
+                                <!-- Check the RA-OPs to see if there is a row present -->
                                 <c:if test="${raop.raoplistSize == 0}">
                                     <a href="${pageContext.request.contextPath}/caop/addracontacts?certId=${raop.certRow.cert_key}">${raop.certRow.cert_key}</a>
                                 </c:if>
@@ -160,11 +163,12 @@
                         <br/>
                         <br/>
                         <div class="col-xs-9">    
+                            <!-- Todo Add new RA-OP Function -->
                             <div class="form-group">
                                 <form:form method="get"
                                     action="${pageContext.request.contextPath}/caop/addracontacts">
                                     <div class="col-xs-1 col-lg-1">
-                                        <button type="submit" class="btn btn-sm btn-primary">
+                                        <button type="submit" class="btn btn-sm btn-primary" disabled="true">
                                             Add New RA Contact
                                         </button>
                                     </div>
@@ -172,11 +176,12 @@
                             </div>  
                         </div>
                         <div class="col-xs-3"> 
+                            <!-- Todo Add a New RA to the Database -->
                             <div class="form-group">
                                 <form:form method="post"
                                     action="${pageContext.request.contextPath}/caop/addnewra">
                                     <div class="col-xs-1 col-lg-1">
-                                        <button type="submit" class="btn btn-sm btn-primary">
+                                        <button type="submit" class="btn btn-sm btn-primary" disabled="true">
                                             Add New RA
                                         </button>
                                     </div>
@@ -248,7 +253,9 @@
                                        <c:if test="${isEmpty == 'false'}">
                                             <td>
                                                 <a href="${editraop}"><button class="btn btn-sm">Edit</button></a>
-                                                <c:forEach var="detail" items="${raop.raoplistRows}">
+                                                
+                                                <!-- To Activate/Deactivate an RA-OP from the database. --->
+                                                <%--<c:forEach var="detail" items="${raop.raoplistRows}">
                                                     <form:form method="post" action="${pageContext.request.contextPath}/caop/raoplist/goto"
                                                     commandName="raActiveBean" >
                                                         <input hidden value="${detail.active}"/>
@@ -259,7 +266,7 @@
                                                             <button type="submit" class="btn btn-sm">Activate</button>
                                                         </c:if>
                                                     </form:form>
-                                                </c:forEach>
+                                                </c:forEach> --%>
                                             </td>
                                             <td><a href="${viewraop}">${sessionScope.raopSearchPageHolder.row + count}</a></td>
                                             <td>${raop.ou}</td>
