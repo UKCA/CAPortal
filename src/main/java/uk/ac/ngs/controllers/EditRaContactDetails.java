@@ -138,7 +138,7 @@ public class EditRaContactDetails {
             contact.setPostcode(raop.getPostcode());
         }
         if(raop.getTrainingDate() != null){
-            contact.setTraining(raop.getTrainingDate().toString());
+            contact.setTraining(raop.getTrainingDate());
         }
         
         return contact;

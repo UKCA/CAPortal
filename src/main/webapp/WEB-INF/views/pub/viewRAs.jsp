@@ -63,13 +63,7 @@
                                     <th>(OU) OrgUnit</th>
                                     <th>(L) Location</th>
                                     <th>(CN) CN</th>
-
-                                        <th>Email</th> 
-
-                                    <sec:authorize access="hasRole('ROLE_RAOP')">
-                                        <th>Email</th> 
-                                    </sec:authorize>
-
+                                    <th>Email</th>
                                     <th>Phone</th>
                                     <%---<th>Street</th>
                                     <th>City</th>

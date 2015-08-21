@@ -13,10 +13,6 @@
 package uk.ac.ngs.service;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
@@ -256,25 +252,11 @@ public class RaContactService {
         if(!changes.getPostcode().equals(raop.getPostcode())){
             raop.setPostcode(changes.getPostcode());
         }
-        /*if(!changes.getTraining().equals(raop.getTrainingDate().toString())){
-            raop.setTrainingDate(convertString(changes.getTraining()));
-        }*/
+        if(!changes.getTraining().equals(raop.getTrainingDate())){         
+            raop.setTrainingDate(changes.getTraining());
+        }
         
         return raop;
-    }
-    
-    private Date convertString(String string){
-        Date date; 
-        DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-        
-        try {
-            date = formatter.parse(string);
-        }
-        catch(ParseException e){
-            date = null;
-        }
-        
-        return date;
     }
     
     @Inject

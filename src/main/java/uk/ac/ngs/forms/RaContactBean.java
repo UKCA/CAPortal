@@ -13,6 +13,7 @@
 package uk.ac.ngs.forms;
 
 import java.io.Serializable;
+import java.util.Date;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
@@ -51,8 +52,8 @@ public class RaContactBean implements Serializable{
     private String postcode;
     
     //@Pattern(message="Invalid Training Date (DD-MM-YYYY)", regexp="^[0-3]?[0-9]/[0-3]?[0-9]/(?:[0-9]{2})?[0-9]{2}$")
-    private String training;
- 
+    private Date training;
+
     /**
      * @return the title
      */
@@ -211,14 +212,14 @@ public class RaContactBean implements Serializable{
     /**
      * @return the training
      */
-    public String getTraining() {
+    public Date getTraining() {
         return training;
     }
 
     /**
      * @param training the training to set
      */
-    public void setTraining(String training) {
+    public void setTraining(Date training) {
         this.training = training;
     }
 }

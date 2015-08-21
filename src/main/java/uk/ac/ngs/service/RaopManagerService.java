@@ -12,14 +12,10 @@
  */
 package uk.ac.ngs.service;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ngs.dao.JdbcRaopListDao;
 import uk.ac.ngs.domain.RaopListRow;
 

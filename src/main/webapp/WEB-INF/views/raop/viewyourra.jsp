@@ -84,17 +84,15 @@
                                             <td><span class="glyphicon glyphicon-star"/></td>
                                         </c:when>
                                         <c:otherwise>
-                                            <td></td>
+                                        <td></td>
                                         </c:otherwise>
                                     </c:choose>
                                     <td><a href="mailto:${user.email}">${user.email}</a></td>
                                     <td>${user.phone}</td>
-                                    <c:if test="${contact != 'Empty' }">
-                                    <td>${contact.street}</td>
-                                    <td>${contact.city}</td>
-                                    <td>${contact.postcode}</td>
-                                    <td>${contact.trainingDate}</td>
-                                    </c:if>
+                                    <td>${user.street}</td>
+                                    <td>${user.city}</td>
+                                    <td>${user.postcode}</td>
+                                    <td>${user.trainingDate}</td>
                                     <c:choose>
                                         <c:when test="${user.active}">
                                             <td><span class="glyphicon glyphicon-star"/></td>
