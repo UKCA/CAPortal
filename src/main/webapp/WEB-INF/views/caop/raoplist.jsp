@@ -148,21 +148,8 @@
                    <br/>
 
                    <!-- Controls for Adding an RA and an RA Operator -->
-                   <div class="col-xs-2">  
-                        <h3>RA-OPs To Be Added</h3>
-                        <!-- Provide a List of RA-OPs who are not present in the RaopList Database --->
-                       <div class="col-xs-11">
-                           <!-- Grab the current list of results for the search criteria -->
-                            <c:forEach var="raop" items="${sessionScope.raopSearchPageHolder.source}"> 
-                                <!-- Check the RA-OPs to see if there is a row present -->
-                                <c:if test="${raop.raoplistSize == 0}">
-                                    <a href="${pageContext.request.contextPath}/caop/addracontacts?certId=${raop.certRow.cert_key}">${raop.certRow.cert_key}</a>
-                                </c:if>
-                            </c:forEach>
-                        </div>
-                        <br/>
-                        <br/>
-                        <div class="col-xs-9">    
+                   <div class="col-xs-4">  
+                        <div class="col-xs-6">    
                             <!-- Todo Add new RA-OP Function -->
                             <div class="form-group">
                                 <form:form method="get"
@@ -175,7 +162,7 @@
                                 </form:form>
                             </div>  
                         </div>
-                        <div class="col-xs-3"> 
+                        <div class="col-xs-6"> 
                             <!-- Todo Add a New RA to the Database -->
                             <div class="form-group">
                                 <form:form method="post"

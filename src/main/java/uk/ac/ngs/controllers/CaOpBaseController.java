@@ -12,14 +12,13 @@
  */
 package uk.ac.ngs.controllers;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
 import javax.inject.Inject;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
@@ -27,15 +26,15 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import uk.ac.ngs.dao.JdbcCertificateDao;
 import uk.ac.ngs.dao.JdbcCrrDao;
 import uk.ac.ngs.dao.JdbcRaopListDao;
 import uk.ac.ngs.dao.JdbcRequestDao;
+import uk.ac.ngs.domain.CertificateRow;
 import uk.ac.ngs.domain.CrrRow;
 import uk.ac.ngs.domain.RaopListRow;
 import uk.ac.ngs.domain.RequestRow;
 import uk.ac.ngs.security.CaUser;
-
-//import uk.ac.ngs.security.CaUser;
 import uk.ac.ngs.security.SecurityContextService;
 import uk.ac.ngs.service.CertUtil;
 
@@ -53,6 +52,7 @@ public class CaOpBaseController {
     private JdbcRaopListDao jdbcRaopListDao;
     private JdbcRequestDao jdbcRequestDao;
     private JdbcCrrDao jdbcCrrDao;
+    private JdbcCertificateDao jdbcCertDao;
     
     @ModelAttribute
     public void populateModel(Model model) {
@@ -96,9 +96,86 @@ public class CaOpBaseController {
         crrRows = jdbcCrrDao.setSubmitDateFromData(crrRows); 
         model.addAttribute("crr_reqrows", crrRows);
 
+        // Fetch a list of Raops to be added to the Ra Contact Table
+        Map<JdbcCertificateDao.WHERE_PARAMS, String> certWhereParams = new HashMap<JdbcCertificateDao.WHERE_PARAMS, String>();
+        certWhereParams.put(JdbcCertificateDao.WHERE_PARAMS.STATUS_LIKE, "VALID");
+        List<CertificateRow> certRows = this.jdbcCertDao.findBy(certWhereParams, null, null);
+
+        log.info("Number of certs: " + certRows.size());
+        
+        certRows = this.addNewRaopsList(certRows);
+        
+        model.addAttribute("newRAOPs", certRows);
+        
         model.addAttribute("lastPageRefreshDate", new Date()); 
     }  
 
+    
+    /**
+     * Sort the current active operator certificates and check which ones currently
+     * exist inside the RaopList Db Table
+     * 
+     * @param certs Operator Certificate List
+     * @return Raops that need to be added
+     */
+    private List<CertificateRow> addNewRaopsList(List<CertificateRow> certs){
+        
+        ArrayList<CertificateRow> addRaops = new ArrayList();
+        
+        boolean check;
+        
+        for(CertificateRow certRow: certs){
+            String certCN = certRow.getCn();
+            String certEmail = certRow.getEmail();
+            check = true;
+            
+            // Check if the RA-OP is already present in the list
+            if(!addRaops.isEmpty()){
+                for(CertificateRow cert: addRaops){
+                    if (cert.getCn().equals(certCN)){ // Check if the same cert exists in the 'AddRaopList'
+                        check = false;
+                    }
+                    
+                    if (cert.getCn().contains(certCN)) { // Check if a similar cert exists in the 'AddRaopList'
+                        check = false;
+                    }
+                    
+                    if (cert.getEmail().equals(certEmail)){ // Check if the certs share the same e-mail address i.e. owner
+                        check = false;
+                    }
+                }
+            }
+            
+            // If not present already, see if an RA-OP Record already exists.
+            if(check){
+                if("RA Operator".equals(certRow.getRole()) || "CA Operator".equals(certRow.getRole())){
+                    List<RaopListRow> raopList = this.jdbcRaopListDao.findBy(certCN, null, null, null);
+
+                    if(raopList.isEmpty()){ // Check if a RA Contact record does not already exist
+                        addRaops.add(certRow);
+                    }
+                }
+            }
+        }
+        
+        //Clear and add the sorted list to the original cert list
+        certs.clear();
+        certs.addAll(addRaops);
+        
+        // For Debug Use
+        log.info("RAOPs to be added: " + certs.size());
+        
+        for(CertificateRow cert: certs){
+            log.info("Cert Information "
+                    + "CN: " + cert.getCn()
+                    + " Role: " + cert.getRole()
+                    + " Status: " + cert.getStatus());
+        }
+        
+        return certs;
+    }
+    
+    
     /**
      * Respond to /caop render by returning its name.
      * 
@@ -128,5 +205,10 @@ public class CaOpBaseController {
     @Inject
     public void setJdbcCrrDao(JdbcCrrDao jdbcCrrDao) {
         this.jdbcCrrDao = jdbcCrrDao;
+    }
+    
+    @Inject
+    public void setJdbcCertificateDao (JdbcCertificateDao jdbcCertDao){
+        this.jdbcCertDao = jdbcCertDao;
     }
 }

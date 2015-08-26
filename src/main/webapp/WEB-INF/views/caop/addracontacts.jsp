@@ -20,6 +20,14 @@
         <%--<jsp:include page="../common/styles.jsp" />--%>
         <%@ include file="../../jspf/styles.jspf" %>
         <link href="${pageContext.request.contextPath}/resources/css/messages/messages.css" rel="stylesheet" />
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+        <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+        <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+        <script>
+            jQuery(document).ready(function($){
+                $("#datepicker").datepicker();
+             });
+        </script>
     </head>
     <body>
         <%--<jsp:include page="../common/header.jsp" />--%>
@@ -30,6 +38,9 @@
             <div class="row">
                 <div class="col-xs-offset-1">
                     <h2>Add RA Contact Details</h2>
+                    <p>
+                        Enter the Contact Information for the new RA Operator in the following form and submit to create a new RA Contact.
+                    </p>
                     <br/>
                     <c:if test="${errorMessage != null}">
                         <div id="message" class="error">${errorMessage}</div>
@@ -37,8 +48,7 @@
                     <c:if test="${not empty message}">
                         <div id="message" class="success">${message}</div>
                     </c:if>
-                    <div class="col-xs-11 col-lg-10">
-                            
+                    <div class="col-xs-11 col-lg-10">   
                         <form:form id="form" method="post" action="${pageContext.request.contextPath}/caop/addracontact/add"
                                    modelAttribute="addRaOperatorBean" cssClass="form-horizontal">
                             <div class="form-group">
@@ -158,7 +168,8 @@
                                 </div>
                                 <div class="col-xs-5 col-lg-5">
                                     <form:input path="training" class="form-control" 
-                                    placeholder="The date you passed your RA training." /> <form:errors
+                                    placeholder="The date you passed your RA training." 
+                                    id="datepicker"/> <form:errors
                                     path="training" cssClass="text-error" />
                                 </div>
                             </div>

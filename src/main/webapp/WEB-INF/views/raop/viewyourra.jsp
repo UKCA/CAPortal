@@ -2,6 +2,7 @@
 <%--<%@ page session="false"%>--%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="s"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="sec"%>
@@ -40,11 +41,11 @@
                     <br/>
                     
                     <div class="col-xs-11"> <%-- Current RA-OP User --%>
-                        <div class="col-xs-4">
+                        <div class="col-xs-5">
                             <h3> Your RA-OP Contact Details </h3>
                             <br/>
                         </div>
-                        <div class="col-xs-2 col-xs-offset-4">
+                        <div class="col-xs-3 col-xs-offset-4">
                             <a href="${pageContext.request.contextPath}/raop/editracontactdetails?certId=${cert.cert_key}" class="btn btn-info" role="button">Edit Your Details</a>
                         </div>
                         <!-- Check to see if RA-OP details need to be added to the database --->
@@ -92,7 +93,7 @@
                                     <td>${user.street}</td>
                                     <td>${user.city}</td>
                                     <td>${user.postcode}</td>
-                                    <td>${user.trainingDate}</td>
+                                    <td><fmt:formatDate value="${user.trainingDate}" pattern="dd/MM/yyyy" /></td>
                                     <c:choose>
                                         <c:when test="${user.active}">
                                             <td><span class="glyphicon glyphicon-star"/></td>
@@ -111,15 +112,14 @@
                             </p>
                         </c:if>
                     </div>    
-                        
-                        
+
                     <%--<h5>RA List last refreshed: &nbsp;(${sessionScope.lastRalistSearchDate_session})</h5>--%>
                     <div class="col-xs-11"> <%-- Current RA OP List --%>
-                        
-                        <h3>Other RA-OPs in your RA: [${ou}]</h3>
-                        
-                        <br/>
-                        
+                        <div class="col-xs-11">
+                            <h3>Other RA-OPs in your RA: [${ou} ${l}]</h3>
+                            <br/>
+                        </div>
+                            
                         <table class="table table-hover table-condensed">
                             <thead>
                                 <tr>

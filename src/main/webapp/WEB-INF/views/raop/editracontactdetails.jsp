@@ -3,6 +3,7 @@
 <%@ page session="false"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="s"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 
@@ -38,6 +39,9 @@
             <div class="row">
                 <div class="col-xs-offset-1">
                     <h2>Edit RA Contact Details</h2>
+                    <p>
+                        Enter the new Contact Information for the RA Operator here.
+                    </p>
                     <br/>
                     <c:if test="${errorMessage != null}">
                         <div id="message" class="error">${errorMessage}</div>
@@ -139,7 +143,9 @@
                                     Training Date (DD-MM-YYYY)
                                 </div>
                                 <div class="col-xs-5 col-lg-5">
+                                    <fmt:formatDate value="${editRaContactBean.training}" pattern="dd/MM/yyyy" var="myDate"/>
                                     <form:input path="training" class="form-control" 
+                                    value="${myDate}"
                                     placeholder="The date you passed your RA training." 
                                     id="datepicker"/> <form:errors
                                     path="training" cssClass="text-error"/>

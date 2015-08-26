@@ -25,11 +25,6 @@
         <%--<jsp:include page="../common/header.jsp" />--%>
         <%@ include file="../../jspf/header.jspf" %>
 
-
-        <%--<ul class="breadcrumb">
-            <li><a href="${searchcert}"><<< Search Cert</a> <span class="divider">/</span></li>
-        </ul>--%>
-
         <!-- Wrap all page content here -->
         <div id="wrap">
             <div class="row">
@@ -41,9 +36,9 @@
                     <c:if test="${not empty message}">
                         <div id="message" class="success">${message}</div>
                     </c:if>
-                    <!--<div class="col-xs-3 col-lg-4" style="float: right;">
-                        <a class="btn btn-md btn-primary" href=""><strong>Edit</strong></a>
-                    </div> -->
+                    <div class="col-xs-3 col-lg-4" style="float: right;">
+                        <a class="btn btn-md btn-primary" href="${pageContext.request.contextPath}/raop/editracontactdetails?certId=${key}"><strong>Edit</strong></a>
+                    </div>
                     <h4>Last Page Refresh: (${lastViewRefreshDate})</h4>
                     <br/>
                     <div class="col-xs-11 col-lg-10">

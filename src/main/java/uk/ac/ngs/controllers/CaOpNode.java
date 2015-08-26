@@ -81,7 +81,6 @@ public class CaOpNode {
         return crrRows;
     }
 
-
     private boolean disableExportButton() throws IOException {
         // Disable if a tarball is detected (can't overwrite) 
         String exportFilePath = this.mutableConfigParams.getProperty("node.export.file"); 
@@ -95,7 +94,7 @@ public class CaOpNode {
             // if not exists, return false to enable button 
             return false;
     }
-
+    
     @RequestMapping(method = RequestMethod.GET)
     public String handleGetRequest(){
         return "/caop/node"; 

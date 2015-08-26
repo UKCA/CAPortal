@@ -80,20 +80,46 @@
                <a href="/caportal/caop/importcert" class="btn btn-primary btn-xs">Import Certificates</a>
            </div><br>
                 
-            Possible functions: 
-            <ul>
-                <li>View/Edit raoplist table and list of RAs</li> 
-                <li>View/Edit certwiz message of the day</li> 
-                <li>Promote/Demote certificates</li>
-                <li>Extract CSRs from db for signing (upload/download)</li>
-                <li>Change the email address associated with (host) certificates (where it isn't part of the DN of course), esp where empty. </li>
-                <li>Multiple levels of CA op role</li>
-            </ul>
-            <br/>
+           <!-- New RA Operator Certificates who need to be added to the RA Contact Table -->
+           <!-- Todo Move to a new individual page JSP page is setup correctly @ /caop/addracontacts, back-end needs to be written
+           <%--<div>
+               <h2>
+                   New RA-OPs Requiring Insertion into the Ra Contact Table
+               </h2>
+               <p>
+                   Current RA Operators who need to be added to the RA Contact Table.
+               </p>
+               
+               <div class="col-xs-10">
+                   <c:forEach items="${newRAOPs}" var="row">
+                            <c:url value="/caop/addracontacts?certId=${row.cert_key}" var="addraop" />
+                            <a href="${addraop}">${row.cert_key}</a>
+                    </c:forEach>
+               </div>
+           </div>
+           </br>
+           </br>--%>
 
-            <p>    
-                Dev notes: Your principal object is....: <%= request.getUserPrincipal()%>
-            </p>
+            <div class="col-xs-11">
+                <p>
+                    </br>
+
+                    Possible functions:
+                </p> 
+                <ul>
+                    <li>View/Edit raoplist table and list of RAs</li> 
+                    <li>View/Edit certwiz message of the day</li> 
+                    <li>Promote/Demote certificates</li>
+                    <li>Extract CSRs from db for signing (upload/download)</li>
+                    <li>Change the email address associated with (host) certificates (where it isn't part of the DN of course), esp where empty. </li>
+                    <li>Multiple levels of CA op role</li>
+                </ul>
+                <br/>
+
+                <p>    
+                    Dev notes: Your principal object is....: <%= request.getUserPrincipal()%>
+                </p>
+            </div>
         </div>
                 
         <%--<jsp:include page="../common/footer.jsp"/>--%>

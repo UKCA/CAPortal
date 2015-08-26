@@ -122,7 +122,8 @@ public class ViewYourRA {
             model.put("contacts", new ArrayList<ViewRaContact>(0)); 
         } else {
             // escape reflected untrusted content   
-            model.put("ou", ou);   
+            model.put("ou", ou); 
+            model.put("l", l);
            
             model.put("user", raop);
             

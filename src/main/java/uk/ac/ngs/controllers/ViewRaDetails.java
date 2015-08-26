@@ -53,6 +53,7 @@ public class ViewRaDetails {
         if (certKey != 0) {
             CertificateRow cert = this.certDao.findById(certKey);
             String cn = cert.getCn();
+            modelMap.put("key", certKey);
             
             List<RaopListRow> raList = this.raopDao.findBy(ou, l, cn, null);
             if(!raList.isEmpty()){
@@ -74,6 +75,8 @@ public class ViewRaDetails {
 
         CertificateRow cert = this.certDao.findById(certKey);
         String cn = cert.getCn();
+        
+        modelMap.put("key", certKey);
         
         log.info("Found: " + cn);
         
