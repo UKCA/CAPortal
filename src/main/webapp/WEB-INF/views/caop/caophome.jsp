@@ -81,7 +81,7 @@
            </div><br>
                 
            <!-- New RA Operator Certificates who need to be added to the RA Contact Table -->
-           <!-- Todo Move to a new individual page JSP page is setup correctly @ /caop/addracontacts, back-end needs to be written
+           <!-- Todo Move to a new individual page JSP page is setup correctly @ /caop/addracontacts, back-end needs to be written -->
            <%--<div>
                <h2>
                    New RA-OPs Requiring Insertion into the Ra Contact Table
