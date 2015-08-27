@@ -103,9 +103,9 @@ public class CaOpBaseController {
 
         log.info("Number of certs: " + certRows.size());
         
-        certRows = this.addNewRaopsList(certRows);
+        long[] newRaops = this.addNewRaopsList(certRows);
         
-        model.addAttribute("newRAOPs", certRows);
+        model.addAttribute("newRAOPs", newRaops);
         
         model.addAttribute("lastPageRefreshDate", new Date()); 
     }  
@@ -116,11 +116,12 @@ public class CaOpBaseController {
      * exist inside the RaopList Db Table
      * 
      * @param certs Operator Certificate List
-     * @return Raops that need to be added
+     * @return newRaops Long[] of cert_keys for the RA-OPs that need to be added
      */
-    private List<CertificateRow> addNewRaopsList(List<CertificateRow> certs){
+    private long[] addNewRaopsList(List<CertificateRow> certs){
         
         ArrayList<CertificateRow> addRaops = new ArrayList();
+        long[] newRaops;
         
         boolean check;
         
@@ -129,7 +130,7 @@ public class CaOpBaseController {
             String certEmail = certRow.getEmail();
             check = true;
             
-            // Check if the RA-OP is already present in the list
+            // Validation Checks to see if the RA-OP is already present in the list to be added
             if(!addRaops.isEmpty()){
                 for(CertificateRow cert: addRaops){
                     if (cert.getCn().equals(certCN)){ // Check if the same cert exists in the 'AddRaopList'
@@ -158,21 +159,28 @@ public class CaOpBaseController {
             }
         }
         
-        //Clear and add the sorted list to the original cert list
-        certs.clear();
-        certs.addAll(addRaops);
+        //Extract the cert_keys and add the sorted list to the long array
+        
+        newRaops = new long[addRaops.size()];
+        int x = 0;
+        
+        for(CertificateRow cert : addRaops){
+            newRaops[x] = cert.getCert_key();
+            x++;
+        }
         
         // For Debug Use
-        log.info("RAOPs to be added: " + certs.size());
+        //log.info("RAOPs to be added: " + addRaops.size());
+        //log.info("List of raops: " + newRaops.length);
         
-        for(CertificateRow cert: certs){
+        /*for(CertificateRow cert: addRaops){
             log.info("Cert Information "
                     + "CN: " + cert.getCn()
                     + " Role: " + cert.getRole()
                     + " Status: " + cert.getStatus());
-        }
+        }*/
         
-        return certs;
+        return newRaops;
     }
     
     

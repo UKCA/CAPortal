@@ -91,9 +91,9 @@
                </p>
                
                <div class="col-xs-10">
-                   <c:forEach items="${newRAOPs}" var="row">
-                            <c:url value="/caop/addracontacts?certId=${row.cert_key}" var="addraop" />
-                            <a href="${addraop}">${row.cert_key}</a>
+                   <c:forEach items="${newRAOPs}" var="cert_key">
+                            <c:url value="/caop/addracontacts?certId=${cert_key}" var="addraop" />
+                            <a href="${addraop}">${cert_key}</a>
                     </c:forEach>
                </div>
            </div>

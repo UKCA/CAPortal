@@ -164,7 +164,7 @@
                             
                             <div class="form-group">
                                 <div class="col-xs-5 col-lg-5">
-                                    Training Date (DD-MM-YYYY)
+                                    Training Date (DD/MM/YYYY)
                                 </div>
                                 <div class="col-xs-5 col-lg-5">
                                     <form:input path="training" class="form-control" 
